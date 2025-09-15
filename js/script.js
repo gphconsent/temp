@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- ⚙️ 설정: 이 부분을 반드시 수정해야 합니다! ---
   // 1. 위 Code.gs를 웹 앱으로 배포한 후 생성된 URL을 여기에 붙여넣으세요.
-  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxWlNtc1ovqxmUn-1I9oK9PJykPWCKfayqsUJXpu_kbT4Q874Qzw8M3Qovi8us9169y6g/exec"; 
+  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzvgnRgLJji65l9JSPGxkkoRDyhtu9Why4CK6pgc2k1y_s_jc5ewdszSn332rUspWaYOw/exec"; 
   
   // 2. Apps Script의 CONFIG 객체에 설정한 API_KEY와 동일한 값을 입력하세요.
   const API_KEY = "GEM-PROJECT-GPH-2025";
