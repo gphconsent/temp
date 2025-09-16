@@ -4,7 +4,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------------
     // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ 설정 영역 ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxn_Noh4xBzpcdHPeewQIQ4fNWlCJxtWgcDgdLs2vyn5u9OrzsLN4W8IiN6ErZO_lfr_g/exec'; 
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxbV9ehA3nHptMkHWI-oiaT0SThEIxh6P73dyhkxtoRGGmdmDHlnLQAyuFTkawx6ctrAg/exec'; 
     const API_KEY = 'GEM-PROJECT-GPH-2025';
     // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ 설정 영역 ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
     // -------------------------------------------------------------------
@@ -34,6 +34,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const signaturePadCanvas = document.getElementById('signature-pad');
     const clearNameBtn = document.getElementById('clear-name');
     const clearSignatureBtn = document.getElementById('clear-signature');
+
+    // --- 수정 관련 요소 정의 ---
+    const openEditModalBtn = document.getElementById('open-edit-modal-btn');
+    const editRequestModal = document.getElementById('edit-request-modal');
+    const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
+    const requestEditLinkBtn = document.getElementById('request-edit-link-btn');
+    const editEmailInput = document.getElementById('edit-email');
+    const editPasswordInput = document.getElementById('edit-password-check');
+    const editStatusMsg = document.getElementById('edit-status-msg');
+
+    let currentEditMode = false; // 현재 수정 모드인지 확인하는 플래그
+
+    // --- 수정 모달 열고 닫기 ---
+    openEditModalBtn.addEventListener('click', () => editRequestModal.classList.remove('hidden'));
+    closeEditModalBtn.addEventListener('click', () => editRequestModal.classList.add('hidden'));
+
 
     // SignaturePad 라이브러리 확인 및 초기화
     if (typeof SignaturePad === 'undefined') {
@@ -105,6 +121,80 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===================================================================
     // 헬퍼 함수
     // ===================================================================
+
+    // --- 페이지 로드 시 수정 토큰 확인 (핵심 로직) ---
+    window.addEventListener('load', async () => {
+        const params = new URLSearchParams(window.location.search);
+        const editToken = params.get('editToken');
+
+        if (editToken) {
+            isEditMode = true;
+            document.querySelector('header h1').textContent = '동의서 내용 수정';
+            loadingModal.classList.remove('hidden');
+
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({
+                        apiKey: API_KEY,
+                        action: 'getEditData',
+                        token: editToken
+                    })
+                });
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+
+                populateForm(result.data); // 폼 채우기 함수 호출
+                
+            } catch (e) {
+                alert('데이터를 불러오는 데 실패했습니다: ' + e.message);
+                window.location.href = window.location.pathname; // URL에서 토큰 제거
+            } finally {
+                loadingModal.classList.add('hidden');
+            }
+        }
+    });
+
+    // --- 폼을 데이터로 채우는 함수 (신규) ---
+    function populateForm(data) {
+        // 텍스트/날짜/전화번호 필드 채우기
+        document.getElementById('fullName').value = data['1. 성명(계약서와 일치)'];
+        document.getElementById('dongHo').value = data['2. 동 호수'];
+        document.getElementById('dob').value = data['3. 생년월일(8자리)'];
+        document.getElementById('phone').value = data['4. 연락처'];
+        // 수정용 비밀번호는 보안을 위해 다시 입력받도록 비워둡니다.
+        document.getElementById('editPassword').setAttribute('placeholder', '새 비밀번호를 입력하거나 비워두세요');
+
+        // 라디오/체크박스
+        document.querySelector(`input[name="isContractor"][value="${data['1-1. 본 설문을 작성하시는 분은 계약자 본인이십니까?']}"]`).checked = true;
+        document.querySelector(`input[name="agreeTermsRadio"][value="${data['6. 위임 내용'] === '동의합니다' ? 'agree' : 'disagree'}"]`).checked = true;
+        document.getElementById('agreePrivacy').checked = data['7. 개인정보 수집 및 이용 동의'] === '동의합니다';
+        document.getElementById('agreeProvider').checked = data['8. 개인정보 제3자 제공 동의'] === '동의합니다';
+        document.querySelector(`input[name="agreeMarketingRadio"][value="${data['9. 홍보 및 소식 전달을 위한 개인정보 수집·이용 동의 (선택)'] === '동의합니다' ? 'agree' : 'disagree'}"]`).checked = true;
+
+        // 이미지 미리보기
+        if (data['5. 계약서 사진첨부']) {
+            contractPreview.src = data['5. 계약서 사진첨부'];
+            contractPreview.classList.remove('hidden');
+        }
+        if (data['10. 자필 성명과 서명']) {
+            signaturePreview.src = data['10. 자필 성명과 서명'];
+            signaturePreview.classList.remove('hidden');
+        }
+        if (data['11. (선택) 명의변경 등']) {
+            nameChangePreview.src = data['11. (선택) 명의변경 등'];
+            nameChangePreview.classList.remove('hidden');
+        }
+
+        // 수정 모드 상태 설정
+        emailSection.classList.add('hidden'); // 이메일 인증 영역 숨기기
+        document.getElementById('original-email-display').textContent = data['이메일 주소'];
+        document.getElementById('original-email-section').classList.remove('hidden');
+        isEmailVerified = true; // 이메일 인증은 통과한 것으로 처리
+        submitBtn.disabled = false;
+        submitBtn.textContent = '수정 완료하기';
+    }
 
     // 서명패드가 비어있는지 확인하는 함수
     const isPadEmpty = (pad) => pad.isEmpty();
@@ -573,4 +663,112 @@ function combinePads(namePad, signaturePad) {
             }
         }
     });
+
+    // --- 수정 링크 요청 버튼 클릭 이벤트 ---
+    requestEditLinkBtn.addEventListener('click', async () => {
+        const email = editEmailInput.value;
+        const password = editPasswordInput.value;
+        if (!email || !password) {
+            alert('이메일과 비밀번호를 모두 입력해주세요.');
+            return;
+        }
+
+        requestEditLinkBtn.disabled = true;
+        requestEditLinkBtn.textContent = '요청 중...';
+        editStatusMsg.textContent = '';
+        
+        try {
+            const response = await fetch(GAS_WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({
+                    apiKey: API_KEY,
+                    action: 'requestEditLink',
+                    email: email,
+                    editPassword: password
+                })
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                editStatusMsg.className = 'status-msg success';
+            } else {
+                editStatusMsg.className = 'status-msg error';
+            }
+            editStatusMsg.textContent = result.message;
+
+        } catch(e) {
+            editStatusMsg.className = 'status-msg error';
+            editStatusMsg.textContent = '오류가 발생했습니다: ' + e.message;
+        } finally {
+            requestEditLinkBtn.disabled = false;
+            requestEditLinkBtn.textContent = '수정 링크 요청';
+        }
+    });
+
+
+    // --- 페이지 로드 시 수정 토큰 확인 및 데이터 로드 ---
+    window.addEventListener('load', async () => {
+        const params = new URLSearchParams(window.location.search);
+        const editToken = params.get('editToken');
+
+        if (editToken) {
+            currentEditMode = true;
+            document.querySelector('header h1').textContent = '동의서 내용 수정';
+            loadingModal.classList.remove('hidden');
+
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({
+                        apiKey: API_KEY,
+                        action: 'getEditData',
+                        token: editToken
+                    })
+                });
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+
+                // 폼 채우기 함수 호출
+                populateForm(result.data);
+                
+                // 이메일 필드는 수정 불가하도록 처리
+                emailInput.value = result.data['이메일 주소'];
+                emailInput.disabled = true;
+                
+            } catch (e) {
+                alert('데이터를 불러오는 데 실패했습니다: ' + e.message);
+                // 에러 발생 시 URL에서 토큰 제거
+                window.location.href = window.location.pathname;
+            } finally {
+                loadingModal.classList.add('hidden');
+            }
+        }
+    });
+
+    // --- 폼을 데이터로 채우는 함수 ---
+    function populateForm(data) {
+        // 간단한 input 필드 채우기
+        document.getElementById('fullName').value = data['1. 성명(계약서와 일치)'];
+        document.getElementById('dongHo').value = data['2. 동 호수'];
+        document.getElementById('dob').value = data['3. 생년월일(8자리)'];
+        document.getElementById('phone').value = data['4. 연락처'];
+        // 비밀번호는 다시 입력받도록 비워둡니다.
+        
+        // 라디오 버튼/체크박스 채우기
+        document.querySelector(`input[name="isContractor"][value="${data['1-1. 본 설문을 작성하시는 분은 계약자 본인이십니까?']}"]`).checked = true;
+        document.querySelector(`input[name="agreeTermsRadio"][value="${data['6. 위임 내용'] === '동의합니다' ? 'agree' : 'disagree'}"]`).checked = true;
+        document.getElementById('agreePrivacy').checked = data['7. 개인정보 수집 및 이용 동의'] === '동의합니다';
+        document.getElementById('agreeProvider').checked = data['8. 개인정보 제3자 제공 동의'] === '동의합니다';
+        document.querySelector(`input[name="agreeMarketingRadio"][value="${data['9. 홍보 및 소식 전달을 위한 개인정보 수집·이용 동의 (선택)'] === '동의합니다' ? 'agree' : 'disagree'}"]`).checked = true;
+
+        // 이미지 미리보기 설정
+        // (서명, 계약서 등은 URL을 받아 미리보기 처리 필요 - 다음 단계에서 구현)
+        
+        // 이메일 인증은 수정모드에서는 건너뛰도록 처리
+        isEmailVerified = true;
+        submitBtn.disabled = false;
+        document.getElementById('email-verification-section').classList.add('hidden'); // 이메일 인증 영역 숨기기
+        document.getElementById('submit-btn').textContent = '수정 완료'; // 버튼 텍스트 변경
+    }
 });

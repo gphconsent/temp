@@ -14,25 +14,34 @@
                 본인은 고척푸르지오힐스테이트 아파트 입주예정자(분양자 및 배우자, 직계 존비속)로서, '고척푸르지오힐스테이트 입주예정자협의회'의 회칙을 준수하고, 회원으로서의 역할을 충실히 수행하며, 수임인인 '고척푸르지오힐스테이트 입주예정자협의회'를 입주예정자의 권익을 대표하는 공식단체임을 인정하며, 협의회 본연의 역할 수행과 원활한 운영을 위해 아래 사항에 대한 권한을 위임하는 것에 동의합니다.
             </p>
         </header>
+        <div class="text-right mb-20">
+            <button type="button" id="open-edit-modal-btn" class="btn btn-link">이미 제출하셨나요? 내용 수정하기</button>
+        </div>                        
 
         <form id="consent-form">
             <section class="form-section">
                 <h2>기본 정보</h2>
-                <div class="form-group">
-                    <label for="email">이메일 주소</label>
-                    <div class="input-with-button">
-                        <input type="email" id="email" name="email" placeholder="인증코드를 받을 이메일을 입력하세요" required>
-                        <button type="button" id="send-verification-btn" class="btn btn-secondary">인증번호 발송</button>
-                    </div>
+                <div class="form-group hidden" id="original-email-section">
+                    <label>이메일 주소 (수정 불가)</label>
+                    <p id="original-email-display" style="font-weight: bold; padding: 10px; background-color: #f8f9fa; border-radius: 6px;"></p>
                 </div>
-
-                <div class="form-group hidden" id="verification-code-group">
-                    <label for="verification-code">인증번호</label>
-                    <div class="input-with-button">
-                        <input type="text" id="verification-code" name="verification-code" placeholder="6자리 인증번호를 입력하세요">
-                        <button type="button" id="confirm-verification-btn" class="btn btn-secondary">인증번호 확인</button>
+            
+                <div id="email-verification-section">
+                    <div class="form-group">
+                        <label for="email">이메일 주소</label>
+                        <div class="input-with-button">
+                            <input type="email" id="email" name="email" placeholder="인증코드를 받을 이메일을 입력하세요" required>
+                            <button type="button" id="send-verification-btn" class="btn btn-secondary">인증번호 발송</button>
+                        </div>
                     </div>
-                    <p id="email-status-msg" class="status-msg"></p>
+                    <div class="form-group hidden" id="verification-code-group">
+                        <label for="verification-code">인증번호</label>
+                        <div class="input-with-button">
+                            <input type="text" id="verification-code" name="verification-code" placeholder="6자리 인증번호를 입력하세요">
+                            <button type="button" id="confirm-verification-btn" class="btn btn-secondary">인증번호 확인</button>
+                        </div>
+                        <p id="email-status-msg" class="status-msg"></p>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="fullName">1. 성명 (계약서와 일치)</label>
@@ -228,7 +237,8 @@
             
             <section class="form-section">
                 <h2>10. 서명</h2>
-                <p class="description">위 모든 약관에 동의한다는 의미로, 아래 두 칸에 각각 <b>이름</b>과 <b>서명</b>을 <b>정자체로 직접 써주세요.</b></p>
+                <img id="signature-preview" class="preview-image hidden" alt="기존 서명 미리보기">
+                <p class="description">위 모든 약관에 동의한다는 의미로, 아래 두 칸에 각각 <b>이름과 서명을 정자체로 직접 써주세요.</b>(수정 시, 새로 입력하지 않으면 기존 서명이 유지됩니다)</p>
                 
                 <div class="form-group">
                     <label>이름 (정자체로 직접 쓰기)</label>
@@ -265,7 +275,26 @@
     <div id="loading-modal" class="modal-overlay hidden">
         <div class="spinner"></div>
     </div>
-    
+
+    <!-- 수정 요청 모달 -->
+    <div id="edit-request-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="close-edit-modal-btn" class="close-btn">&times;</button>
+            <h2>제출 내용 수정</h2>
+            <p>동의서 제출 시 입력했던 이메일 주소와 수정용 비밀번호(4자리)를 입력해주세요.</p>
+            <div class="form-group">
+                <label for="edit-email">이메일 주소</label>
+                <input type="email" id="edit-email" placeholder="제출 시 사용한 이메일">
+            </div>
+            <div class="form-group">
+                <label for="edit-password-check">수정용 비밀번호</label>
+                <input type="password" id="edit-password-check" placeholder="4자리 숫자" maxlength="4">
+            </div>
+            <button id="request-edit-link-btn" class="btn btn-primary btn-block">수정 링크 요청</button>
+            <p id="edit-status-msg" class="status-msg"></p>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <script src="js/script.js"></script>
 </body>

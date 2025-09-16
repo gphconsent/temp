@@ -550,3 +550,61 @@ input[type="file"].success {
     border: 1px solid rgba(11, 26, 21, 0.2);
     transition: all 0.3s ease;
 }
+
+/* ============================================= */
+/* 수정 기능 관련 스타일 (브랜딩 컬러 적용) */
+/* ============================================= */
+
+.text-right { text-align: right; }
+.mb-20 { margin-bottom: 20px; }
+
+.btn-link {
+    background: none;
+    border: none;
+    color: #132D25; /* 브랜딩 컬러 적용 */
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: all 0.2s ease;
+}
+
+.btn-link:hover {
+    color: #0b1a15; /* 더 어두운 그린 */
+    text-decoration: none;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px; /* 다른 요소들과 일관성 */
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 8px 25px rgba(19, 45, 37, 0.15); /* 브랜딩 컬러로 그림자 */
+    border: 1px solid rgba(19, 45, 37, 0.1);
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.8em;
+    cursor: pointer;
+    line-height: 1;
+    color: #666;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background-color: rgba(130, 24, 15, 0.1); /* 브랜딩 레드 컬러 */
+    color: #82180F;
+    transform: scale(1.1);
+}
