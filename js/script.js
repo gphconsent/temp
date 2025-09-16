@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ 설정 영역 ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
     // 
     // 1. Google Apps Script(GAS) 배포 후 생성된 웹 앱 URL을 여기에 붙여넣으세요.
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyENWLvR5fPz4ytYSYJ0dgbY1GUkQIstQKlsu7q4LOCX5DBrpTKDH7uaWYe5J3Eoe9Vdg/exec'; 
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyjqRYvinTF7Nq9Abb9GDNeLBLD-gij6u80t79JnFWcRr4NE3x4U6tg3K-Z83DxOlNrRQ/exec'; 
     //
     // 2. GAS 코드에 설정한 API 키와 동일한 값을 입력하세요.
     const API_KEY = 'GEM-PROJECT-GPH-2025';
@@ -97,7 +97,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = Object.fromEntries(formData.entries());
 
             // 2. 이름+서명 이미지, 계약서 이미지 Base64로 변환
-            data.combinedSignature = await combinePads(namePad, signaturePad);
+            const signatureBase64String = await combinePads(namePad, signaturePad);
+            data.combinedSignature = {
+                base64: signatureBase64String.split(',')[1],
+                type: 'image/png',
+                name: `signature_${data.dongHo.replace(/\s/g, '')}.png`
+            };
+            console.log('[DEBUG] 서명 병합 이미지 Base64:', data.combinedSignature);
+            alert('[디버그] F12 개발자 도구의 콘솔 탭에서 서명 이미지 데이터(Base64)를 확인하세요.');
+
             data.contractImageFile = await fileToBase64(document.getElementById('contractImage').files[0]);
             
             const nameChangeFile = document.getElementById('nameChangeImage').files[0];
