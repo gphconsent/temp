@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 기본 요소 정의
     const form = document.getElementById('consent-form');
     const submitBtn = document.getElementById('submit-btn');
+    const loadingModal = document.getElementById('loading-modal');
 
     // SignaturePad 라이브러리 로드 확인
     if (typeof SignaturePad === 'undefined') {
@@ -89,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         submitBtn.disabled = true;
-        submitBtn.textContent = '처리 중...';
+        loadingModal.classList.remove('hidden');
 
         try {
             // 1. 모든 폼 데이터 수집
@@ -144,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('오류가 발생했습니다: ' + error.message);
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = '제출하기';
+            loadingModal.classList.add('hidden');
         }
     });
 });
