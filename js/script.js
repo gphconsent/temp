@@ -140,7 +140,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const populateForm = (data) => {
         console.log("폼 데이터 채우기 시작:", data);
+
+        // 필수 요소들이 존재하는지 확인
+        const requiredElements = {
+            emailVerificationSection: emailVerificationSection,
+            originalEmailDisplay: originalEmailDisplay,
+            originalEmailSection: originalEmailSection,
+            submitBtn: submitBtn
+        };
+
+        Object.entries(requiredElements).forEach(([name, element]) => {
+            if (!element) {
+                console.error(`Required element missing: ${name}`);
+            } else {
+                console.log(`Element found: ${name}`, element);
+            }
+        });
+
         originalEmail = data['이메일 주소'];
+        console.log("설정된 originalEmail:", originalEmail);
         
         // --- 텍스트 필드 ---
         document.getElementById('fullName').value = data['1. 성명 (계약서와 일치)'] || '';
@@ -339,27 +357,46 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===================================================================
     const initializePage = async () => {
         console.log("페이지 로드 완료. 수정 토큰을 확인합니다...");
+        console.log("현재 URL:", window.location.href);
+        console.log("Search params:", window.location.search);
+
         submitBtn.disabled = true; // 기본적으로 제출 버튼 비활성화
 
         const params = new URLSearchParams(window.location.search);
         const editToken = params.get('editToken');
+
+        console.log("추출된 editToken:", editToken);
+        console.log("editToken 존재 여부:", !!editToken);
 
         if (editToken) {
             console.log("수정 토큰 발견:", editToken);
             currentEditMode = true;
             loadingModal.classList.remove('hidden');
             try {
+                console.log("GAS 백엔드에 수정 데이터 요청 중...");
+                const requestBody = { apiKey: API_KEY, action: 'getEditData', token: editToken };
+                console.log("Request body:", requestBody);
+
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify({ apiKey: API_KEY, action: 'getEditData', token: editToken })
+                    body: JSON.stringify(requestBody)
                 });
+
+                console.log("GAS 응답 상태:", response.status);
+                console.log("GAS 응답 헤더:", response.headers);
+
                 const result = await response.json();
+                console.log("GAS 응답 결과:", result);
+
                 if (result.status !== 'success') throw new Error(result.message);
-                
+
+                console.log("폼 데이터로 채우기 시작...");
                 populateForm(result.data);
 
             } catch (e) {
+                console.error('수정 데이터 로딩 중 오류:', e);
+                console.error('오류 스택:', e.stack);
                 alert('데이터 로딩 실패: ' + e.message);
                 window.location.href = window.location.pathname; // 실패 시 URL 초기화
             } finally {
