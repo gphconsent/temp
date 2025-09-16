@@ -529,19 +529,22 @@ function combinePads(namePad, signaturePad) {
             const formData = Object.fromEntries(formDataObj.entries());
 
             // [수정] 백엔드로 보낼 최종 데이터 구성
-            const dataToSend = {
-                ...formData,
-                action: 'submitForm', // 백엔드 라우팅을 위한 action
-                contractImageFile: contractImageFile,
-                combinedSignature: combinedSignatureObject,
-                nameChangeImageFile: nameChangeImageFile,
+            const dataToSend = { 
+                ...formData, 
+                contractImageFile: contractImageFile, 
+                combinedSignature: combinedSignatureObject, 
+                nameChangeImageFile: nameChangeImageFile 
             };
-
-            // 백엔드로 데이터 전송
+    
             const response = await fetch(GAS_WEB_APP_URL, {
-                method: 'POST',                
+                method: 'POST',
                 headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ apiKey: API_KEY, formData: dataToSend })
+                // ▼▼▼▼▼ [수정] action을 최상위 레벨로 올립니다. ▼▼▼▼▼
+                body: JSON.stringify({ 
+                    apiKey: API_KEY, 
+                    action: 'submitForm', // action을 여기에 명시
+                    formData: dataToSend 
+                })
             });
 
             const result = await response.json();
