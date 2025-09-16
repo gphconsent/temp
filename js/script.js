@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ 설정 영역 ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
     // 
     // 1. Google Apps Script(GAS) 배포 후 생성된 웹 앱 URL을 여기에 붙여넣으세요.
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyuqXPUff55dD1jf7P4BNrZzPqQYtzFocLXriyDvhhQHnnRa7pOaIIVRoZrCd-65ovrig/exec'; 
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyENWLvR5fPz4ytYSYJ0dgbY1GUkQIstQKlsu7q4LOCX5DBrpTKDH7uaWYe5J3Eoe9Vdg/exec'; 
     //
     // 2. GAS 코드에 설정한 API 키와 동일한 값을 입력하세요.
     const API_KEY = 'GEM-PROJECT-GPH-2025';
