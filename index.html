@@ -22,7 +22,7 @@
                     <label for="email">이메일 주소</label>
                     <div class="input-with-button">
                         <input type="email" id="email" name="email" placeholder="예: gph-owner@email.com" required>
-                        <button type="button" id="email-verify-btn">인증</button>
+                        <button type="button" id="email-verify-btn" class="btn btn-primary">인증</button>
                     </div>
                 </div>
                 <div class="form-group">
@@ -215,14 +215,14 @@
                     <label>이름 (정자체로 직접 쓰기)</label>
                     <div class="signature-pad-container">
                         <canvas id="name-pad"></canvas>
-                        <button type="button" class="clear-btn" id="clear-name">지우기</button>
+                        <button type="button" id="clear-name" class="btn btn-secondary btn-sm" style="position: absolute; top: 10px; right: 10px;">지우기</button>
                     </div>
                 </div>
                 <div class="form-group">
                      <label>서명</label>
                     <div class="signature-pad-container">
                         <canvas id="signature-pad"></canvas>
-                        <button type="button" class="clear-btn" id="clear-signature">지우기</button>
+                        <button type="button" id="clear-signature" class="btn btn-secondary btn-sm" style="position: absolute; top: 10px; right: 10px;">지우기</button>
                     </div>
                 </div>
             </section>
@@ -237,7 +237,7 @@
             </section>
             
             <div class="submit-container">
-                <button type="submit" id="submit-btn">제출하기</button>
+                <button type="submit" id="submit-btn" class="btn btn-primary btn-block">제출하기</button>
             </div>
         </form>
     </div>

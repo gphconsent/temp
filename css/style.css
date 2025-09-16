@@ -1,11 +1,12 @@
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background-color: #f8f9fa; color: #333; line-height: 1.6; padding: 20px; }
 .container { max-width: 800px; margin: 0 auto; background-color: #fff; padding: 30px 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); }
 header { text-align: center; margin-bottom: 40px; border-bottom: 1px solid #e0e0e0; padding-bottom: 20px; }
-header h1 { font-size: 2em; color: #1a237e; margin-bottom: 10px; }
-header .subtitle { font-size: 1em; color: #555; text-align: left; background-color: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 5px solid #1a237e; }
+header h1 { font-size: 2em; color: #132D25; margin-bottom: 10px; }
+header .subtitle { font-size: 1em; color: #555; text-align: left; background-color: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 5px solid #132D25; }
 .form-section { padding: 30px; margin-bottom: 25px; border-radius: 8px; border: 1px solid #e0e0e0; }
-.form-section h2 { font-size: 1.5em; color: #3f51b5; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #e0e0e0;}
+.form-section h2 { font-size: 1.5em; color: #132D25; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #e0e0e0;}
 .form-group { margin-bottom: 20px; }
 .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
 input[type="text"], input[type="email"], input[type="tel"], input[type="password"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; }
@@ -21,20 +22,85 @@ input[type="file"] { width: 100%; padding: 10px; }
 .info-block-container { border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; }
 .info-block { padding: 15px; }
 .info-block:not(:last-child) { border-bottom: 1px solid #e0e0e0; }
-.info-block h4 { font-weight: 600; color: #1a237e; margin-bottom: 8px; }
+.info-block h4 { font-weight: 600; color: #132D25; margin-bottom: 8px; }
 .info-block p, .info-block ol { margin:0; padding-left: 0; }
 .info-block ol { padding-left: 20px; }
 .signature-pad-container { position: relative; border: 1px solid #ccc; border-radius: 6px; }
 canvas { width: 100%; height: 200px; border-radius: 6px; display: block; touch-action: none; }
-.clear-btn { position: absolute; top: 10px; right: 10px; background-color: #757575; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
 .submit-container { text-align: center; margin-top: 40px; }
-#submit-btn { width: 100%; background-color: #3f51b5; color: white; font-size: 1.2em; padding: 15px; border: none; border-radius: 6px; cursor: pointer; }
 
-/* Input with button layout */
+/* ========================================= */
+/* ✨ Magic MCP Generated Button Styles ✨ */
+/* ========================================= */
+
+/* Base Button Style */
+.btn {
+    display: inline-block;
+    font-weight: 600;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    transition: all 0.15s ease-in-out;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Primary Button (for main actions) */
+.btn-primary {
+    color: #fff;
+    background-color: #132D25;
+    border-color: #132D25;
+}
+
+.btn-primary:hover {
+    background-color: #0b1a15; /* Darker shade */
+    border-color: #0b1a15;
+}
+
+/* Secondary Button (for destructive actions) */
+.btn-secondary {
+    color: #fff;
+    background-color: #82180F;
+    border-color: #82180F;
+}
+
+.btn-secondary:hover {
+    background-color: #6a140c; /* Darker shade */
+    border-color: #6a140c;
+}
+
+/* Small Button */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 4px;
+    letter-spacing: 0;
+}
+
+/* Full-width button */
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
 .input-with-button { display: flex; gap: 10px; align-items: center; }
 .input-with-button input { flex: 1; }
-.input-with-button button { background-color: #3f51b5; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; white-space: nowrap; }
-.input-with-button button:hover { background-color: #303f9f; }
 
 /* Example image container */
 .example-image-container { text-align: center; margin: 20px 0; }
@@ -54,10 +120,26 @@ table th { background-color: #f5f5f5; font-weight: 600; color: #333; }
 table tr:hover { background-color: #f9f9f9; }
 table tr:last-child td { border-bottom: none; }
 
-/* Responsive table */
+/* Responsive table and layout */
 @media (max-width: 768px) {
-    table { font-size: 0.9em; }
-    table th, table td { padding: 8px 10px; }
+    body {
+        padding: 10px;
+    }
+    .container {
+        padding: 20px 15px;
+    }
+    header h1 {
+        font-size: 1.5em;
+    }
+    .form-section {
+        padding: 20px;
+    }
+    table { 
+        font-size: 0.9em; 
+    }
+    table th, table td { 
+        padding: 8px 10px; 
+    }
 }
 
 /* Additional form enhancements */
@@ -68,10 +150,6 @@ table tr:last-child td { border-bottom: none; }
 .checkbox-group label { display: flex; align-items: center; gap: 8px; }
 .checkbox-group input[type="checkbox"] { margin: 0; }
 
-/* Button hover effects */
-button:hover { opacity: 0.9; transition: opacity 0.2s ease; }
-#submit-btn:hover { background-color: #303f9f; }
-
 /* File input styling */
 input[type="file"] { 
     width: 100%; 
@@ -81,4 +159,4 @@ input[type="file"] {
     background-color: #fafafa; 
     cursor: pointer; 
 }
-input[type="file"]:hover { border-color: #3f51b5; background-color: #f0f4ff; }
+input[type="file"]:hover { border-color: #132D25; background-color: #f0f4ff; }
