@@ -259,7 +259,11 @@ document.addEventListener('DOMContentLoaded', () => {
         emailVerificationSection.classList.add('hidden');
         originalEmailDisplay.textContent = originalEmail;
         originalEmailSection.classList.remove('hidden');
-        
+
+        // 수정 모드에서는 이메일 필드에 원본 이메일을 설정하고 readOnly로 만듦
+        emailInput.value = originalEmail;
+        emailInput.readOnly = true;
+
         isEmailVerified = true;
         submitBtn.disabled = false;
         submitBtn.textContent = '수정 완료하기';
@@ -385,12 +389,19 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingModal.classList.remove('hidden');
         submitBtn.disabled = true;
 
-        // ✨ [핵심 수정] 제출 직전에만 비활성화를 풀고, 끝나면 다시 잠금 ✨
-        const wasEmailReadOnly = emailInput.readOnly;
-        if (wasEmailReadOnly) emailInput.readOnly = false;
-
         try {
+            // FormData 생성 (readOnly 필드도 포함됨)
             const formData = Object.fromEntries(new FormData(form).entries());
+
+            // 수정 모드에서 originalEmail을 사용하도록 명시적으로 처리
+            if (currentEditMode && originalEmail) {
+                formData.email = originalEmail;
+                console.log('수정 모드: originalEmail을 formData.email로 설정:', originalEmail);
+            }
+
+            // FormData 디버깅 로그
+            console.log('생성된 FormData:', formData);
+            console.log('이메일 값 확인:', formData.email);
             let combinedSignatureObject = null;
             if (!namePad.isEmpty() && !signaturePad.isEmpty()) {
                 const dataUrl = await combinePads(namePad, signaturePad);
@@ -399,11 +410,22 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const dataToSend = {
                 ...formData,
+                // 수정 모드에서는 originalEmail을 사용하되, 백엔드가 email 필드를 기대하므로 email로도 설정
+                email: currentEditMode ? originalEmail : formData.email,
                 originalEmail: currentEditMode ? originalEmail : formData.email,
                 contractImageFile: await fileToBase64(contractImageInput.files[0]),
                 nameChangeImageFile: await fileToBase64(nameChangeImageInput.files[0]),
                 combinedSignature: combinedSignatureObject,
             };
+
+            console.log('백엔드 전송 데이터:', {
+                action: currentEditMode ? 'updateForm' : 'submitForm',
+                email: dataToSend.email,
+                fullName: dataToSend.fullName,
+                dongHo: dataToSend.dongHo,
+                hasContractImage: !!dataToSend.contractImageFile,
+                hasCombinedSignature: !!dataToSend.combinedSignature
+            });
 
             const response = await fetch(GAS_WEB_APP_URL, {
                 method: 'POST',
@@ -425,8 +447,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('오류가 발생했습니다: ' + error.message);
             submitBtn.disabled = false;
         } finally {
-            // ✨ 작업이 성공하든 실패하든, 다시 원래 상태로 돌려놓음
-            if (wasEmailReadOnly) emailInput.readOnly = true;
             loadingModal.classList.add('hidden');
         }
     });
