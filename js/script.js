@@ -385,6 +385,10 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingModal.classList.remove('hidden');
         submitBtn.disabled = true;
 
+        // ✨ [핵심 수정] 제출 직전에만 비활성화를 풀고, 끝나면 다시 잠금 ✨
+        const wasEmailReadOnly = emailInput.readOnly;
+        if (wasEmailReadOnly) emailInput.readOnly = false;
+
         try {
             const formData = Object.fromEntries(new FormData(form).entries());
             let combinedSignatureObject = null;
@@ -421,6 +425,8 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('오류가 발생했습니다: ' + error.message);
             submitBtn.disabled = false;
         } finally {
+            // ✨ 작업이 성공하든 실패하든, 다시 원래 상태로 돌려놓음
+            if (wasEmailReadOnly) emailInput.readOnly = true;
             loadingModal.classList.add('hidden');
         }
     });
