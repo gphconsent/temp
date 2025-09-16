@@ -1,133 +1,209 @@
-// ==================================================================
-// Phase 5: 프론트엔드 기능 구현 (gphconsent.github.io)
-// ==================================================================
-
 document.addEventListener('DOMContentLoaded', () => {
+    // 기본 요소 정의
+    const form = document.getElementById('consent-form');
+    const submitBtn = document.getElementById('submit-btn');
 
-  // --- ⚙️ 설정: 이 부분을 반드시 수정해야 합니다! ---
-  // 1. 위 Code.gs를 웹 앱으로 배포한 후 생성된 URL을 여기에 붙여넣으세요.
-  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzvgnRgLJji65l9JSPGxkkoRDyhtu9Why4CK6pgc2k1y_s_jc5ewdszSn332rUspWaYOw/exec"; 
-  
-  // 2. Apps Script의 CONFIG 객체에 설정한 API_KEY와 동일한 값을 입력하세요.
-  const API_KEY = "GEM-PROJECT-GPH-2025";
-  // --------------------------------------------------
-
-  // HTML 요소 가져오기
-  const form = document.getElementById('consent-form');
-  const submitBtn = document.getElementById('submit-btn');
-  const loadingIndicator = document.getElementById('loading-indicator');
-  const canvas = document.getElementById('signature-pad');
-  const clearSignatureBtn = document.getElementById('clear-signature');
-  const signaturePad = new SignaturePad(canvas, {
-    backgroundColor: 'rgb(255, 255, 255)'
-  });
-
-  // 브라우저 창 크기가 변경될 때 캔버스 크기 조정
-  function resizeCanvas() {
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    canvas.getContext("2d").scale(ratio, ratio);
-    signaturePad.clear(); // 크기 변경 후 서명 다시 받기
-  }
-  window.addEventListener("resize", resizeCanvas);
-  resizeCanvas();
-
-  // "다시 서명" 버튼 기능
-  clearSignatureBtn.addEventListener('click', () => {
-    signaturePad.clear();
-  });
-
-  // 폼 제출 이벤트 처리
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault(); // 기본 제출 동작 방지
-
-    // 유효성 검사
-    if (signaturePad.isEmpty()) {
-      alert("서명을 반드시 입력해야 합니다.");
-      return;
+    // SignaturePad 라이브러리 로드 확인
+    if (typeof SignaturePad === 'undefined') {
+        alert('서명 기능을 불러오는데 실패했습니다. 페이지를 새로고침 해주세요.');
+        return;
     }
 
-    // 로딩 시작: 버튼 비활성화 및 로딩 인디케이터 표시
-    submitBtn.disabled = true;
-    submitBtn.textContent = '처리 중...';
-    loadingIndicator.classList.remove('hidden');
+    // 캔버스 요소 정의
+    const nameCanvas = document.getElementById('name-pad');
+    const signatureCanvas = document.getElementById('signature-pad');
 
-    try {
-      // 1. 폼 데이터 수집
-      const formData = new FormData(form);
-      const params = {};
-      for (let [key, value] of formData.entries()) {
-        if (key.startsWith('terms')) { // 체크박스 값 처리
-            params[key] = value ? "동의합니다" : "";
-        } else if (key !== 'contractFile') { // 파일 제외
-            params[key] = value;
-        }
-      }
-      
-      // FormData에는 있지만 누락될 수 있는 선택 동의 항목 처리
-      if (!params.terms4) params.terms4 = "";
+    // 캔버스 크기 조절 함수
+    function resizeCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        const canvases = [nameCanvas, signatureCanvas];
+        canvases.forEach(canvas => {
+            if (canvas) {
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+            }
+        });
+    }
 
-      // 2. 파일 및 서명 이미지 Base64로 변환
-      const contractFile = document.getElementById('contract-file').files[0];
-      const contractFileBase64 = await fileToBase64(contractFile);
-      const signatureImageBase64 = signaturePad.toDataURL('image/png').split(',')[1];
-      
-      // 3. 백엔드로 보낼 최종 데이터 객체 생성
-      const payload = {
-        params: params,
-        contractFile: {
-          base64: contractFileBase64,
-          type: contractFile.type,
-          name: contractFile.name
-        },
-        signatureImage: {
-          base64: signatureImageBase64,
-          type: 'image/png',
-          name: 'signature.png'
-        }
-      };
+    // 1. (가장 먼저) 캔버스 크기 조절 실행
+    resizeCanvas();
 
-      // 4. fetch API로 백엔드에 데이터 전송
-      const response = await fetch(`${GAS_WEB_APP_URL}?apiKey=${API_KEY}`, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' } // GAS doPost는 이 헤더를 권장
-      });
-      
-      const result = await response.json();
+    // 2. (크기가 맞춰진 후) 서명패드 기능 적용
+    const namePad = new SignaturePad(nameCanvas, { backgroundColor: 'rgb(255, 255, 255)' });
+    const signaturePad = new SignaturePad(signatureCanvas, { backgroundColor: 'rgb(255, 255, 255)' });
 
-      // 5. 결과 처리
-      if (result.status === 'success') {
-        alert('제출이 성공적으로 완료되었습니다.');
-        form.reset();
+    // 브라우저 창 크기 변경 시 실시간으로 캔버스 크기 다시 조절
+    window.addEventListener("resize", () => {
+        resizeCanvas();
+        namePad.clear();
         signaturePad.clear();
-      } else {
-        throw new Error(result.message);
-      }
-
-    } catch (error) {
-      console.error('제출 중 오류 발생:', error);
-      alert(`오류가 발생했습니다: ${error.message}`);
-    } finally {
-      // 로딩 종료: 버튼 활성화 및 로딩 인디케이터 숨김
-      submitBtn.disabled = false;
-      submitBtn.textContent = '제출하기';
-      loadingIndicator.classList.add('hidden');
-    }
-  });
-
-  /**
-   * [헬퍼 함수] File 객체를 Base64 문자열로 변환합니다.
-   * @param {File} file - 변환할 파일 객체
-   * @returns {Promise<string>} - Base64로 인코딩된 문자열 (데이터 부분만)
-   */
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result.split(',')[1]);
-      reader.onerror = error => reject(error);
     });
-  }
+
+    // '지우기' 버튼 기능
+    document.getElementById('clear-name').addEventListener('click', () => namePad.clear());
+    document.getElementById('clear-signature').addEventListener('click', () => signaturePad.clear());
+
+    // 계약서 이미지 미리보기 기능
+    const contractImageInput = document.getElementById('contractImage');
+    contractImageInput.addEventListener('change', () => {
+        const file = contractImageInput.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                // 이전에 미리보기 이미지가 없었다면 새로 생성
+                let preview = document.getElementById('contract-preview');
+                if (!preview) {
+                    preview = document.createElement('img');
+                    preview.id = 'contract-preview';
+                    preview.style.maxWidth = '100%';
+                    preview.style.maxHeight = '200px';
+                    preview.style.marginTop = '15px';
+                    contractImageInput.after(preview);
+                }
+                preview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // 명의변경 이미지 미리보기 기능
+    const nameChangeImageInput = document.getElementById('nameChangeImage');
+    if (nameChangeImageInput) {
+        nameChangeImageInput.addEventListener('change', () => {
+            const file = nameChangeImageInput.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const preview = document.getElementById('nameChange-preview');
+                    if (preview) {
+                        preview.src = e.target.result;
+                        preview.classList.remove('hidden');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // 폼 제출 시 실행될 메인 이벤트
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault(); // 기본 제출 기능 중단
+
+        // [기능 복원] 1. 필수 입력 항목 유효성 검사
+        if (!validateForm(namePad, signaturePad)) {
+            return; // 검사 실패 시 중단
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = '처리 중...';
+
+        try {
+            // [기능 복원] 2. 이름과 서명 이미지 하나로 합치기
+            const combinedImageBase64 = await combinePads(namePad, signaturePad);
+            const contractChangedImage = document.getElementById('nameChangeImage').files[0];
+            
+            // TODO: 백엔드(GAS)로 데이터 전송하는 로직 추가 예정
+            console.log("병합된 최종 서명 (Base64):", combinedImageBase64.substring(0, 100) + "...");
+            if (contractChangedImage) {
+                console.log("명의 변경 파일:", contractChangedImage.name);
+            }
+            alert('모든 기능 포함된 최종 스크립트 실행 성공! (백엔드 연동 전)');
+
+        } catch (error) {
+            console.error('제출 처리 중 오류 발생:', error);
+            alert('오류가 발생했습니다: ' + error.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '제출하기';
+        }
+    });
 });
+
+
+/**
+ * [기능 복원] 필수 항목 유효성 검사 함수
+ */
+function validateForm(namePadInstance, signaturePadInstance) {
+    const requiredFields = [
+        { id: 'fullName', name: '1. 성명' },
+        { nameAttr: 'isContractor', name: '1-1. 계약자 본인 여부' },
+        { id: 'dongHo', name: '2. 동호수' },
+        { id: 'dob', name: '3. 생년월일' },
+        { id: 'phone', name: '4. 연락처' },
+        { id: 'contractImage', name: '5. 계약서 사진' },
+    ];
+    
+    let missingFields = [];
+
+    // 텍스트, 파일, 라디오 버튼 검사
+    requiredFields.forEach(field => {
+        let element;
+        if (field.id) {
+            element = document.getElementById(field.id);
+            if (element.type === 'file' && element.files.length === 0) {
+                missingFields.push(field.name);
+            } else if (element.type !== 'file' && !element.value.trim()) {
+                missingFields.push(field.name);
+            }
+        } else if (field.nameAttr) {
+            if (!document.querySelector(`input[name="${field.nameAttr}"]:checked`)) {
+                missingFields.push(field.name);
+            }
+        }
+    });
+
+    // 이름 및 서명 패드가 비어있는지 검사
+    if (namePadInstance.isEmpty()) {
+        missingFields.push('10. 서명 (이름)');
+    }
+    if (signaturePadInstance.isEmpty()) {
+        missingFields.push('10. 서명 (서명란)');
+    }
+
+    // 누락된 항목이 있으면 알림창 표시
+    if (missingFields.length > 0) {
+        alert(`다음 필수 항목을 확인해주세요:\n- ${missingFields.join('\n- ')}`);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * [기능 복원] 두 개의 서명패드 이미지를 좌우로 합치는 함수
+ */
+function combinePads(namePad, signaturePad) {
+    return new Promise((resolve, reject) => {
+        const nameData = namePad.toDataURL('image/png');
+        const signatureData = signaturePad.toDataURL('image/png');
+        const nameImage = new Image();
+        const signatureImage = new Image();
+        let loadedImages = 0;
+        const totalImages = 2;
+
+        const onImageLoad = () => {
+            loadedImages++;
+            if (loadedImages === totalImages) {
+                const tempCanvas = document.createElement('canvas');
+                const ctx = tempCanvas.getContext('2d');
+                tempCanvas.width = nameImage.width + signatureImage.width;
+                tempCanvas.height = Math.max(nameImage.height, signatureImage.height);
+                
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                ctx.drawImage(nameImage, 0, 0);
+                ctx.drawImage(signatureImage, nameImage.width, 0);
+                
+                resolve(tempCanvas.toDataURL('image/png'));
+            }
+        };
+        
+        nameImage.onload = onImageLoad;
+        signatureImage.onload = onImageLoad;
+        nameImage.onerror = () => reject(new Error("이름 이미지를 불러오지 못했습니다."));
+        signatureImage.onerror = () => reject(new Error("서명 이미지를 불러오지 못했습니다."));
+        nameImage.src = nameData;
+        signatureImage.src = signatureData;
+    });
+}

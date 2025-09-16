@@ -1,151 +1,84 @@
-/* 기본 스타일 및 폰트 설정 */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: #f4f7f6;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; }
+.container { max-width: 800px; margin: 0 auto; background-color: #fff; padding: 30px 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); }
+header { text-align: center; margin-bottom: 40px; border-bottom: 1px solid #e0e0e0; padding-bottom: 20px; }
+header h1 { font-size: 2em; color: #1a237e; margin-bottom: 10px; }
+header .subtitle { font-size: 1em; color: #555; text-align: left; background-color: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 5px solid #1a237e; }
+.form-section { padding: 30px; margin-bottom: 25px; border-radius: 8px; border: 1px solid #e0e0e0; }
+.form-section h2 { font-size: 1.5em; color: #3f51b5; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #e0e0e0;}
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
+input[type="text"], input[type="email"], input[type="tel"], input[type="password"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; }
+input[type="file"] { width: 100%; padding: 10px; }
+.radio-group label { font-weight: 500; }
+.checkbox-group { margin-top: 20px; }
+.checkbox-group label { font-weight: bold; }
+.description { font-size: 0.95em; color: #666; margin-bottom: 15px; background-color: #f0f4f8; padding: 15px; border-radius: 4px; }
+.terms-box { background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; font-size: 0.9em; }
+.terms-box h3 { margin-top: 15px; margin-bottom: 5px; }
+.terms-box ol { padding-left: 25px; }
+.terms-box ol ol { padding-left: 20px; }
+.info-block-container { border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; }
+.info-block { padding: 15px; }
+.info-block:not(:last-child) { border-bottom: 1px solid #e0e0e0; }
+.info-block h4 { font-weight: 600; color: #1a237e; margin-bottom: 8px; }
+.info-block p, .info-block ol { margin:0; padding-left: 0; }
+.info-block ol { padding-left: 20px; }
+.signature-pad-container { position: relative; border: 1px solid #ccc; border-radius: 6px; }
+canvas { width: 100%; height: 200px; border-radius: 6px; display: block; touch-action: none; }
+.clear-btn { position: absolute; top: 10px; right: 10px; background-color: #757575; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
+.submit-container { text-align: center; margin-top: 40px; }
+#submit-btn { width: 100%; background-color: #3f51b5; color: white; font-size: 1.2em; padding: 15px; border: none; border-radius: 6px; cursor: pointer; }
+
+/* Input with button layout */
+.input-with-button { display: flex; gap: 10px; align-items: center; }
+.input-with-button input { flex: 1; }
+.input-with-button button { background-color: #3f51b5; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; white-space: nowrap; }
+.input-with-button button:hover { background-color: #303f9f; }
+
+/* Example image container */
+.example-image-container { text-align: center; margin: 20px 0; }
+.example-image { max-width: 100%; height: auto; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+
+/* Divider */
+.divider { border: none; border-top: 2px solid #e0e0e0; margin: 30px 0; }
+
+/* Preview image */
+.preview-image { max-width: 100%; height: auto; margin-top: 15px; border: 1px solid #e0e0e0; border-radius: 6px; }
+.hidden { display: none; }
+
+/* Table styles */
+table { width: 100%; border-collapse: collapse; margin: 20px 0; background-color: #fff; }
+table th, table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+table th { background-color: #f5f5f5; font-weight: 600; color: #333; }
+table tr:hover { background-color: #f9f9f9; }
+table tr:last-child td { border-bottom: none; }
+
+/* Responsive table */
+@media (max-width: 768px) {
+    table { font-size: 0.9em; }
+    table th, table td { padding: 8px 10px; }
 }
 
-/* 전체 컨테이너 */
-.container {
-    width: 100%;
-    max-width: 800px;
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
+/* Additional form enhancements */
+.radio-group { display: flex; gap: 20px; flex-wrap: wrap; }
+.radio-group label { display: flex; align-items: center; gap: 5px; font-weight: normal; }
+.radio-group input[type="radio"] { margin: 0; }
 
-header h1 {
-    font-size: 24px;
-    color: #333;
-    text-align: center;
-    margin-bottom: 10px;
-}
+.checkbox-group label { display: flex; align-items: center; gap: 8px; }
+.checkbox-group input[type="checkbox"] { margin: 0; }
 
-header p {
-    font-size: 14px;
-    color: #666;
-    text-align: center;
-    margin-bottom: 30px;
-}
+/* Button hover effects */
+button:hover { opacity: 0.9; transition: opacity 0.2s ease; }
+#submit-btn:hover { background-color: #303f9f; }
 
-/* 폼 그룹 스타일 */
-.form-group {
-    margin-bottom: 25px;
+/* File input styling */
+input[type="file"] { 
+    width: 100%; 
+    padding: 10px; 
+    border: 2px dashed #ccc; 
+    border-radius: 6px; 
+    background-color: #fafafa; 
+    cursor: pointer; 
 }
-
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #444;
-}
-
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="tel"] {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-sizing: border-box;
-    font-size: 16px;
-}
-
-.form-group input[type="file"] {
-    width: 100%;
-    font-size: 14px;
-}
-
-/* 체크박스 그룹 */
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.checkbox-group input[type="checkbox"] {
-    margin-right: 10px;
-    width: 18px;
-    height: 18px;
-}
-
-/* 서명패드 */
-.signature-pad-container {
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
-
-canvas#signature-pad {
-    width: 100%;
-    height: 200px;
-    cursor: crosshair;
-}
-
-#clear-signature {
-    background-color: #777;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-/* 제출 버튼 */
-#submit-btn {
-    width: 100%;
-    padding: 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#submit-btn:hover {
-    background-color: #0056b3;
-}
-
-/* 로딩 인디케이터 */
-.hidden {
-    display: none !important;
-}
-
-#loading-indicator {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-.spinner {
-    border: 8px solid #f3f3f3;
-    border-top: 8px solid #3498db;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
-    margin-bottom: 20px;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+input[type="file"]:hover { border-color: #3f51b5; background-color: #f0f4ff; }
