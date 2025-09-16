@@ -321,7 +321,12 @@ document.addEventListener('DOMContentLoaded', () => {
             isEmailVerified = true;
             emailStatusMsg.textContent = '✅ 이메일 인증이 완료되었습니다.';
             emailStatusMsg.className = 'status-msg success';
-            [emailInput, verificationCodeInput, sendVerificationBtn, confirmVerificationBtn].forEach(el => el.disabled = true);
+
+            // disabled 대신 readonly를 사용하여 FormData에서 값이 제외되지 않도록 함
+            emailInput.readOnly = true;
+            verificationCodeInput.readOnly = true;
+            [sendVerificationBtn, confirmVerificationBtn].forEach(el => el.disabled = true);
+
             submitBtn.disabled = false;
         } else {
             isEmailVerified = false;
@@ -398,14 +403,24 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
 
         try {
-            // FormData 생성 (readOnly 필드도 포함됨)
+            // FormData 생성 (readonly 필드도 포함됨)
             const formData = Object.fromEntries(new FormData(form).entries());
+
+            // 이메일 값이 누락된 경우 수동으로 추가 (일반 모드)
+            if (!formData.email && emailInput.value) {
+                formData.email = emailInput.value;
+                console.log('이메일 값 수동 추가:', emailInput.value);
+            }
 
             // 수정 모드에서 originalEmail을 사용하도록 명시적으로 처리
             if (currentEditMode && originalEmail) {
                 formData.email = originalEmail;
                 console.log('수정 모드: originalEmail을 formData.email로 설정:', originalEmail);
             }
+
+            // 이메일 input 상태 디버깅
+            console.log('이메일 input의 현재 값:', emailInput.value);
+            console.log('이메일 input의 readOnly 상태:', emailInput.readOnly);
 
             // FormData 디버깅 로그
             console.log('생성된 FormData:', formData);
