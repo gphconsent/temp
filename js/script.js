@@ -248,8 +248,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 이미지 키들도 여러 가능성으로 시도
         const contractImageKeys = ['5. 계약서 사진첨부', '5. 계약서 사진 첨부', 'contractImage'];
-        const signatureImageKeys = ['10. 자필 성명과 서명', 'signatureImage'];
-        const nameChangeImageKeys = ['11. (선택) 명의변경 등의 변경 내역 확인 필요 시 사진 첨부', '11. (선택) 명의변경 등', 'nameChangeImage'];
+        const signatureImageKeys = [
+            '10. 위 모든 약관에 동의한다는 자필 성명과 서명을 사진 첨부 부탁드립니다.',
+            '10. 자필 성명과 서명',
+            'signatureImage'
+        ];
+        const nameChangeImageKeys = [
+            '11. (선택) 명의변경 등의 변경 내역 확인 필요 시 사진 첨부',
+            '11. (선택) 명의변경 등',
+            'nameChangeImage'
+        ];
 
         setImagePreview(contractPreview, findDataByKeys(contractImageKeys), '계약서 사진');
         setImagePreview(signaturePreview, findDataByKeys(signatureImageKeys), '서명 이미지');
