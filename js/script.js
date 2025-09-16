@@ -42,9 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const signaturePad = new SignaturePad(signatureCanvas, { backgroundColor: 'rgb(255, 255, 255)' });
     
     window.addEventListener("resize", () => {
+        const nameData = namePad.toDataURL();
+        const signatureData = signaturePad.toDataURL();
         resizeCanvas();
-        namePad.clear();
-        signaturePad.clear();
+        namePad.fromDataURL(nameData);
+        signaturePad.fromDataURL(signatureData);
     });
 
     document.getElementById('clear-name').addEventListener('click', () => namePad.clear());
