@@ -122,14 +122,22 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
+                console.log(`새 파일 선택됨: ${input.id}`, file.name);
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     preview.src = event.target.result;
                     preview.classList.remove('hidden');
+                    preview.style.display = 'block'; // 숨겨진 상태에서 보이도록
+                    console.log(`새 이미지 미리보기 설정 완료: ${input.id}`);
                 };
                 reader.readAsDataURL(file);
             } else {
-                preview.classList.add('hidden');
+                // 파일이 선택 취소된 경우, 기존 이미지를 다시 표시하거나 숨김
+                console.log(`파일 선택 취소됨: ${input.id}`);
+                // 수정 모드에서는 기존 이미지를 유지
+                if (!currentEditMode) {
+                    preview.classList.add('hidden');
+                }
             }
         });
     };
@@ -161,10 +169,35 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("설정된 originalEmail:", originalEmail);
         
         // --- 텍스트 필드 ---
-        document.getElementById('fullName').value = data['1. 성명 (계약서와 일치)'] || '';
-        document.getElementById('dongHo').value = data['2. 동 호수'] || '';
-        document.getElementById('dob').value = data['3. 생년월일 (8자리)'] || '';
-        document.getElementById('phone').value = data['4. 연락처'] || '';
+        // 백엔드 데이터 키 확인을 위한 로그
+        console.log("받은 데이터 키들:", Object.keys(data));
+
+        // 여러 가능한 키 이름으로 시도
+        const fullNameKeys = ['1. 성명 (계약서와 일치)', '1. 성명(계약서와 일치)', 'fullName'];
+        const dongHoKeys = ['2. 동 호수', '2. 동호수', 'dongHo'];
+        const dobKeys = ['3. 생년월일 (8자리)', '3. 생년월일(8자리)', 'dob'];
+        const phoneKeys = ['4. 연락처', 'phone'];
+
+        const findDataByKeys = (keys) => {
+            for (let key of keys) {
+                if (data[key] !== undefined && data[key] !== null) {
+                    return data[key];
+                }
+            }
+            return '';
+        };
+
+        document.getElementById('fullName').value = findDataByKeys(fullNameKeys);
+        document.getElementById('dongHo').value = findDataByKeys(dongHoKeys);
+        document.getElementById('dob').value = findDataByKeys(dobKeys);
+        document.getElementById('phone').value = findDataByKeys(phoneKeys);
+
+        console.log("바인딩된 값들:", {
+            fullName: document.getElementById('fullName').value,
+            dongHo: document.getElementById('dongHo').value,
+            dob: document.getElementById('dob').value,
+            phone: document.getElementById('phone').value
+        });
         const editPasswordField = document.getElementById('editPassword');
         editPasswordField.placeholder = '새 비밀번호 입력 시에만 변경됩니다';
         editPasswordField.required = false;
@@ -181,19 +214,46 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('agreePrivacy').checked = data['7. 개인정보 수집 및 이용 동의'] === '동의합니다';
         document.getElementById('agreeProvider').checked = data['8. 개인정보 제3자 제공 동의'] === '동의합니다';
         
-        // --- 이미지 미리보기 ---
-        const setImagePreview = (imgElement, url) => {
-            if (url) {
-                // Google Drive URL을 프록시해야 할 수 있으므로, CORS 문제 방지를 위해 직접 링크 대신 표시만 합니다.
-                // 실제로는 브라우저 캐시나 다른 방법으로 이미지를 보여주는 것이 더 안정적입니다.
-                // 지금은 간단히 src에 할당합니다.
-                imgElement.src = url;
+        // --- 기존 이미지 미리보기 ---
+        const setImagePreview = (imgElement, url, fallbackText) => {
+            if (url && url.trim() !== '') {
+                console.log(`이미지 로드 시도: ${fallbackText}`, url);
+
+                // Google Drive 공유 URL을 직접 이미지 URL로 변환
+                let imageUrl = url;
+                if (url.includes('drive.google.com')) {
+                    // Google Drive 파일 ID 추출
+                    const fileId = url.match(/[-\w]{25,}/);
+                    if (fileId) {
+                        imageUrl = `https://drive.google.com/thumbnail?id=${fileId[0]}&sz=w500`;
+                    }
+                }
+
+                imgElement.src = imageUrl;
                 imgElement.classList.remove('hidden');
+
+                // 이미지 로드 실패 시 처리
+                imgElement.onerror = () => {
+                    console.warn(`이미지 로드 실패: ${fallbackText}`, url);
+                    imgElement.style.display = 'none';
+                };
+
+                imgElement.onload = () => {
+                    console.log(`이미지 로드 성공: ${fallbackText}`);
+                };
+            } else {
+                console.log(`이미지 URL 없음: ${fallbackText}`);
             }
         };
-        setImagePreview(contractPreview, data['5. 계약서 사진 첨부']);
-        setImagePreview(signaturePreview, data['10. 자필 성명과 서명']);
-        setImagePreview(nameChangePreview, data['11. (선택) 명의변경 등의 변경 내역 확인 필요 시 사진 첨부']);
+
+        // 이미지 키들도 여러 가능성으로 시도
+        const contractImageKeys = ['5. 계약서 사진첨부', '5. 계약서 사진 첨부', 'contractImage'];
+        const signatureImageKeys = ['10. 자필 성명과 서명', 'signatureImage'];
+        const nameChangeImageKeys = ['11. (선택) 명의변경 등의 변경 내역 확인 필요 시 사진 첨부', '11. (선택) 명의변경 등', 'nameChangeImage'];
+
+        setImagePreview(contractPreview, findDataByKeys(contractImageKeys), '계약서 사진');
+        setImagePreview(signaturePreview, findDataByKeys(signatureImageKeys), '서명 이미지');
+        setImagePreview(nameChangePreview, findDataByKeys(nameChangeImageKeys), '명의변경 사진');
 
         // --- UI 변경 ---
         emailVerificationSection.classList.add('hidden');
@@ -289,8 +349,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 서명패드 및 이미지 미리보기 ---
-    clearNameBtn.addEventListener('click', () => namePad.clear());
-    clearSignatureBtn.addEventListener('click', () => signaturePad.clear());
+    clearNameBtn.addEventListener('click', () => {
+        namePad.clear();
+        console.log('이름 패드 지우기');
+    });
+
+    clearSignatureBtn.addEventListener('click', () => {
+        signaturePad.clear();
+        console.log('서명 패드 지우기');
+
+        // 수정 모드에서 서명을 지웠을 때 기존 서명 이미지 다시 표시
+        if (currentEditMode && signaturePreview && signaturePreview.src) {
+            signaturePreview.classList.remove('hidden');
+            signaturePreview.style.display = 'block';
+        }
+    });
     setupImagePreview(contractImageInput, contractPreview);
     setupImagePreview(nameChangeImageInput, nameChangePreview);
 
