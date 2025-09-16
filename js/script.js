@@ -4,7 +4,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------------
     // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ 설정 영역 ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxbV9ehA3nHptMkHWI-oiaT0SThEIxh6P73dyhkxtoRGGmdmDHlnLQAyuFTkawx6ctrAg/exec'; 
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzbees1nuvN2GNOoZGgIp_9RLBRjahfFunHG08zK0l358EEMZTwQrM5pKI5RRN-bZLbMw/exec'; 
     const API_KEY = 'GEM-PROJECT-GPH-2025';
     // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ 설정 영역 ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
     // -------------------------------------------------------------------
@@ -122,76 +122,65 @@ document.addEventListener('DOMContentLoaded', () => {
     // 헬퍼 함수
     // ===================================================================
 
-    // --- 페이지 로드 시 수정 토큰 확인 (핵심 로직) ---
+    // ===================================================================
+    // 이벤트 리스너
+    // ===================================================================
+
+    // --- 페이지 로드: 수정 모드 감지 ---
     window.addEventListener('load', async () => {
+        console.log("페이지 로드 완료. 수정 토큰을 확인합니다...");
         const params = new URLSearchParams(window.location.search);
         const editToken = params.get('editToken');
-
         if (editToken) {
+            console.log("수정 토큰 발견:", editToken);
             isEditMode = true;
             document.querySelector('header h1').textContent = '동의서 내용 수정';
+            openEditModalBtn.classList.add('hidden');
             loadingModal.classList.remove('hidden');
-
             try {
-                const response = await fetch(GAS_WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify({
-                        apiKey: API_KEY,
-                        action: 'getEditData',
-                        token: editToken
-                    })
-                });
+                const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ apiKey: API_KEY, action: 'getEditData', token: editToken }) });
                 const result = await response.json();
                 if (result.status !== 'success') throw new Error(result.message);
-
-                populateForm(result.data); // 폼 채우기 함수 호출
-                
+                populateForm(result.data);
             } catch (e) {
-                alert('데이터를 불러오는 데 실패했습니다: ' + e.message);
-                window.location.href = window.location.pathname; // URL에서 토큰 제거
+                alert('데이터 로딩 실패: ' + e.message);
+                window.location.href = window.location.pathname;
             } finally {
                 loadingModal.classList.add('hidden');
             }
         }
     });
 
-    // --- 폼을 데이터로 채우는 함수 (신규) ---
+    // --- 폼 채우기 함수 ---
     function populateForm(data) {
-        // 텍스트/날짜/전화번호 필드 채우기
-        document.getElementById('fullName').value = data['1. 성명(계약서와 일치)'];
-        document.getElementById('dongHo').value = data['2. 동 호수'];
-        document.getElementById('dob').value = data['3. 생년월일(8자리)'];
-        document.getElementById('phone').value = data['4. 연락처'];
-        // 수정용 비밀번호는 보안을 위해 다시 입력받도록 비워둡니다.
-        document.getElementById('editPassword').setAttribute('placeholder', '새 비밀번호를 입력하거나 비워두세요');
+        originalEmail = data['이메일 주소']; // 원본 이메일 저장
+        document.getElementById('fullName').value = data['1. 성명(계약서와 일치)'] || '';
+        document.getElementById('dongHo').value = data['2. 동 호수'] || '';
+        document.getElementById('dob').value = data['3. 생년월일(8자리)'] || '';
+        document.getElementById('phone').value = data['4. 연락처'] || '';
+        document.getElementById('editPassword').placeholder = '새 비밀번호 입력 시에만 변경됩니다';
+        document.getElementById('editPassword').required = false;
 
-        // 라디오/체크박스
         document.querySelector(`input[name="isContractor"][value="${data['1-1. 본 설문을 작성하시는 분은 계약자 본인이십니까?']}"]`).checked = true;
         document.querySelector(`input[name="agreeTermsRadio"][value="${data['6. 위임 내용'] === '동의합니다' ? 'agree' : 'disagree'}"]`).checked = true;
         document.getElementById('agreePrivacy').checked = data['7. 개인정보 수집 및 이용 동의'] === '동의합니다';
         document.getElementById('agreeProvider').checked = data['8. 개인정보 제3자 제공 동의'] === '동의합니다';
         document.querySelector(`input[name="agreeMarketingRadio"][value="${data['9. 홍보 및 소식 전달을 위한 개인정보 수집·이용 동의 (선택)'] === '동의합니다' ? 'agree' : 'disagree'}"]`).checked = true;
 
-        // 이미지 미리보기
-        if (data['5. 계약서 사진첨부']) {
-            contractPreview.src = data['5. 계약서 사진첨부'];
-            contractPreview.classList.remove('hidden');
-        }
-        if (data['10. 자필 성명과 서명']) {
-            signaturePreview.src = data['10. 자필 성명과 서명'];
-            signaturePreview.classList.remove('hidden');
-        }
-        if (data['11. (선택) 명의변경 등']) {
-            nameChangePreview.src = data['11. (선택) 명의변경 등'];
-            nameChangePreview.classList.remove('hidden');
-        }
+        const setImagePreview = (imgElement, url) => {
+            if (url) {
+                imgElement.src = url;
+                imgElement.classList.remove('hidden');
+            }
+        };
+        setImagePreview(contractPreview, data['5. 계약서 사진첨부']);
+        setImagePreview(signaturePreview, data['10. 자필 성명과 서명']);
+        setImagePreview(nameChangePreview, data['11. (선택) 명의변경 등']);
 
-        // 수정 모드 상태 설정
-        emailSection.classList.add('hidden'); // 이메일 인증 영역 숨기기
-        document.getElementById('original-email-display').textContent = data['이메일 주소'];
-        document.getElementById('original-email-section').classList.remove('hidden');
-        isEmailVerified = true; // 이메일 인증은 통과한 것으로 처리
+        emailSection.classList.add('hidden');
+        originalEmailDisplay.textContent = originalEmail;
+        originalEmailSection.classList.remove('hidden');
+        isEmailVerified = true;
         submitBtn.disabled = false;
         submitBtn.textContent = '수정 완료하기';
     }
@@ -463,10 +452,6 @@ function combinePads(namePad, signaturePad) {
         return { isValid, errors };
     };
 
-    // ===================================================================
-    // 이벤트 리스너
-    // ===================================================================
-
     // --- 이메일 인증 이벤트 리스너 (신규) ---
 
     sendVerificationBtn.addEventListener('click', async () => {
@@ -562,105 +547,79 @@ function combinePads(namePad, signaturePad) {
     setupImagePreview(contractImageInput, contractPreview);
     setupImagePreview(nameChangeImageInput, nameChangePreview);
 
-    // ===================================================================
-    // 폼 제출 이벤트 리스너 (완성본)
-    // ===================================================================
     form.addEventListener('submit', async (e) => {
-        console.log('Form submit event triggered!'); // 디버깅
         e.preventDefault();
-
-        // [수정] 이메일 인증 여부 최상단에서 확인
-        if (!isEmailVerified) {
-            console.log('Email not verified, showing alert'); // 디버깅
-            alert('이메일 인증을 먼저 완료해주세요.');
-            return;
-        }
-
-        // 통합 유효성 검사 시스템
-        const validationResult = validateAllFields();
-        if (!validationResult.isValid) {
-            // 첫 번째 오류 필드로 스크롤 및 포커스
-            const firstErrorElement = document.querySelector('.field-error:not(.hidden)');
-            if (firstErrorElement) {
-                const fieldId = firstErrorElement.id.replace('-error', '');
-                const field = document.getElementById(fieldId) || document.querySelector(`[name="${fieldId}"]`);
-                if (field) {
-                    field.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    if (field.focus) field.focus();
+        if (!isEmailVerified) return alert('이메일 인증을 먼저 완료해주세요.');
+        
+        // 유효성 검사
+        if (!isEditMode) {
+            // 신규 제출 시에만 엄격한 유효성 검사 적용
+            const requiredFields = { fullName: "성명", dongHo: "동호수", dob: "생년월일", phone: "연락처", editPassword: "수정용 비밀번호" };
+            for (const [id, name] of Object.entries(requiredFields)) {
+                if (!document.getElementById(id).value) {
+                    alert(`필수 항목을 입력해주세요: ${name}`);
+                    return;
                 }
             }
-            return;
+            if (!contractImageInput.files[0]) {
+                alert("필수 항목을 첨부해주세요: 계약서 사진");
+                return;
+            }
+            if (namePad.isEmpty() || signaturePad.isEmpty()) {
+                 alert("필수 항목을 입력해주세요: 이름(정자체)과 서명");
+                return;
+            }
         }
-
+    
+        loadingModal.classList.remove('hidden');
         submitBtn.disabled = true;
-        submitBtn.textContent = '처리 중...';
-
-        // 로딩 모달 표시
-        const loadingModal = document.getElementById('loading-modal');
-        if (loadingModal) {
-            loadingModal.classList.remove('hidden');
-        }
-
+    
         try {
-            // 파일들을 Base64로 변환
-            const contractImageFile = await fileToBase64(contractImageInput.files[0]);
-            const nameChangeImageFile = await fileToBase64(nameChangeImageInput.files[0]);
-
-            // 서명 이미지 합치기
-            const combinedSignatureDataUrl = await combinePads(namePad, signaturePad);
-            const combinedSignatureObject = {
-                base64: combinedSignatureDataUrl.split(',')[1],
-                type: 'image/png',
-                name: 'combined_signature.png'
-            };
-
-            // 폼 데이터 객체 생성
             const formDataObj = new FormData(form);
             const formData = Object.fromEntries(formDataObj.entries());
-
-            // [수정] 백엔드로 보낼 최종 데이터 구성
-            const dataToSend = { 
-                ...formData, 
-                contractImageFile: contractImageFile, 
-                combinedSignature: combinedSignatureObject, 
-                nameChangeImageFile: nameChangeImageFile 
+            
+            let combinedSignatureObject = null;
+            // 서명 패드에 새로 그린 내용이 있을 때만 이미지를 생성하고 객체로 만듭니다.
+            if (!namePad.isEmpty() && !signaturePad.isEmpty()) {
+                const combinedSignatureDataUrl = await combinePads(namePad, signaturePad);
+                combinedSignatureObject = {
+                    base64: combinedSignatureDataUrl.split(',')[1],
+                    type: 'image/png',
+                    name: 'combined_signature.png'
+                };
+            }
+    
+            const dataToSend = {
+                ...formData,
+                originalEmail: isEditMode ? originalEmail : formData.email,
+                contractImageFile: await fileToBase64(contractImageInput.files[0]),
+                nameChangeImageFile: await fileToBase64(nameChangeImageInput.files[0]),
+                combinedSignature: combinedSignatureObject // [버그 수정] 항상 올바른 객체 형식을 사용
             };
     
             const response = await fetch(GAS_WEB_APP_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain' },
-                // ▼▼▼▼▼ [수정] action을 최상위 레벨로 올립니다. ▼▼▼▼▼
                 body: JSON.stringify({ 
                     apiKey: API_KEY, 
-                    action: 'submitForm', // action을 여기에 명시
+                    action: isEditMode ? 'updateForm' : 'submitForm',
                     formData: dataToSend 
                 })
             });
-
+    
             const result = await response.json();
-
+    
             if (result.status === 'success') {
                 alert(result.message);
-                form.reset();
-                contractPreview.classList.add('hidden');
-                nameChangePreview.classList.add('hidden');
-                namePad.clear();
-                signaturePad.clear();
-                window.scrollTo(0, 0);
+                window.location.href = window.location.pathname;
             } else {
                 throw new Error(result.message);
             }
         } catch (error) {
-            alert('제출 중 오류가 발생했습니다: ' + error.message);
+            alert('오류가 발생했습니다: ' + error.message);
+            submitBtn.disabled = false;
         } finally {
-            submitBtn.disabled = false; // 성공/실패와 관계없이 버튼 다시 활성화
-            submitBtn.textContent = '제출하기';
-
-            // 로딩 모달 숨기기
-            const loadingModal = document.getElementById('loading-modal');
-            if (loadingModal) {
-                loadingModal.classList.add('hidden');
-            }
+            loadingModal.classList.add('hidden');
         }
     });
 
