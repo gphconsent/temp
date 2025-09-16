@@ -102,9 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 base64: signatureBase64String.split(',')[1],
                 type: 'image/png',
                 name: `signature_${data.dongHo.replace(/\s/g, '')}.png`
-            };
-            console.log('[DEBUG] 서명 병합 이미지 Base64:', data.combinedSignature);
-            alert('[디버그] F12 개발자 도구의 콘솔 탭에서 서명 이미지 데이터(Base64)를 확인하세요.');
+            };           
 
             data.contractImageFile = await fileToBase64(document.getElementById('contractImage').files[0]);
             
