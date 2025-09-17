@@ -1221,23 +1221,40 @@ body::after {
 }
 
 .crop-container {
-    flex: 1;
-    min-height: 300px;
-    max-height: 60vh;
     margin-bottom: 20px;
     border: 2px solid #e9ecef;
     border-radius: 12px;
     overflow: hidden;
-    background: #f8f9fa;
+    background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
+    /* 동적 크기 조정을 위해 고정 크기 제거 */
+    min-width: 300px;
+    min-height: 200px;
+    width: 100%;
+    height: auto;
 }
 
 .crop-container img {
     max-width: 100%;
     max-height: 100%;
     display: block;
+    object-fit: contain;
+}
+
+/* Cropper.js 투명 배경 제거 */
+.crop-container .cropper-container {
+    background: transparent !important;
+}
+
+.crop-container .cropper-canvas {
+    background: transparent !important;
+}
+
+.crop-container .cropper-modal {
+    background: transparent !important;
+    opacity: 0 !important;
 }
 
 .crop-controls {
@@ -1288,14 +1305,23 @@ body::after {
     }
 
     .crop-controls {
-        flex-direction: column;
-        gap: 10px;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: space-around;
     }
 
     .crop-controls .btn {
-        width: 100%;
-        min-height: 48px;
+        min-width: 120px;
+        min-height: 50px; /* 터치 최적화 크기 */
         font-size: 1rem;
+        padding: 12px 20px;
+        border-radius: 10px;
+        touch-action: manipulation; /* 터치 최적화 */
+    }
+
+    .crop-controls .btn:disabled {
+        opacity: 0.6;
+        pointer-events: none;
     }
 }
 
@@ -1314,5 +1340,13 @@ body::after {
 
     .crop-controls {
         padding: 0 10px;
+        gap: 12px;
+    }
+
+    .crop-controls .btn {
+        min-width: 100px;
+        min-height: 52px; /* 더 큰 터치 영역 */
+        font-size: 0.95rem;
+        padding: 14px 16px;
     }
 }

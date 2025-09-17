@@ -222,28 +222,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 이미지 로드 완료 후 Cropper 초기화
             cropImage.onload = () => {
+                // 동적 모달 크기 조정을 위한 이미지 크기 계산
+                const imageWidth = cropImage.naturalWidth;
+                const imageHeight = cropImage.naturalHeight;
+                const imageAspectRatio = imageWidth / imageHeight;
+
+                // 모달 컨테이너 크기 동적 조정
+                const cropContainer = cropImage.parentElement;
+                const maxModalWidth = window.innerWidth * 0.9;
+                const maxModalHeight = window.innerHeight * 0.7;
+
+                let containerWidth, containerHeight;
+                if (imageAspectRatio > 1) {
+                    // 가로가 긴 이미지
+                    containerWidth = Math.min(maxModalWidth, 600);
+                    containerHeight = containerWidth / imageAspectRatio;
+                } else {
+                    // 세로가 긴 이미지
+                    containerHeight = Math.min(maxModalHeight, 500);
+                    containerWidth = containerHeight * imageAspectRatio;
+                }
+
+                cropContainer.style.width = containerWidth + 'px';
+                cropContainer.style.height = containerHeight + 'px';
+
                 currentCropper = new Cropper(cropImage, {
                     aspectRatio: NaN, // 자유 비율
                     viewMode: 1,
-                    movable: true,
-                    scalable: true,
-                    rotatable: true,
-                    zoomable: true,
+                    movable: false, // 이미지 움직임 방지
+                    scalable: false, // 성능 향상을 위해 비활성화
+                    rotatable: true, // 회전만 허용
+                    zoomable: false, // 성능 향상을 위해 비활성화
                     cropBoxMovable: true,
                     cropBoxResizable: true,
                     responsive: true,
                     restore: false,
                     checkOrientation: false,
-                    modal: true,
+                    modal: false, // 투명 배경 제거
                     guides: true,
                     center: true,
-                    background: true,
-                    autoCropArea: 0.8,
+                    background: false, // 투명 배경 제거
+                    autoCropArea: 1.0, // 전체 이미지로 시작
                     minContainerWidth: 200,
                     minContainerHeight: 200,
-                    dragMode: 'move',
+                    dragMode: 'crop', // 크롭 모드로 고정
                     // 모바일 터치 최적화
-                    wheelZoomRatio: 0.1,
+                    wheelZoomRatio: 0,
                     // Safari 호환성 개선
                     checkCrossOrigin: false,
                     // 터치 디바이스에서 더 나은 UX
@@ -267,19 +291,34 @@ document.addEventListener('DOMContentLoaded', () => {
         cropSkipBtn.parentNode.replaceChild(newCropSkipBtn, cropSkipBtn);
         closeCropModalBtn.parentNode.replaceChild(newCloseCropModalBtn, closeCropModalBtn);
 
-        // 좌회전 (반시계방향 90도)
+        // 디바운싱을 위한 변수
+        let rotateTimeout = null;
+
+        // 좌회전 (반시계방향 90도) - 디바운싱 적용
         newRotateLeftBtn.addEventListener('click', () => {
-            if (currentCropper) {
+            if (currentCropper && !rotateTimeout) {
+                newRotateLeftBtn.disabled = true;
                 currentCropper.rotate(-90);
                 console.log('이미지 좌회전 (-90도)');
+
+                rotateTimeout = setTimeout(() => {
+                    newRotateLeftBtn.disabled = false;
+                    rotateTimeout = null;
+                }, 500); // 500ms 디바운싱
             }
         });
 
-        // 우회전 (시계방향 90도)
+        // 우회전 (시계방향 90도) - 디바운싱 적용
         newRotateRightBtn.addEventListener('click', () => {
-            if (currentCropper) {
+            if (currentCropper && !rotateTimeout) {
+                newRotateRightBtn.disabled = true;
                 currentCropper.rotate(90);
                 console.log('이미지 우회전 (+90도)');
+
+                rotateTimeout = setTimeout(() => {
+                    newRotateRightBtn.disabled = false;
+                    rotateTimeout = null;
+                }, 500); // 500ms 디바운싱
             }
         });
 
