@@ -389,14 +389,25 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         if (!isEmailVerified) return alert('이메일 인증을 먼저 완료해주세요.');
 
-        // 필수 필드 유효성 검사 (신규 제출 시에만 엄격하게)
+        // 필수 필드 유효성 검사
         if (!currentEditMode) {
-             const requiredFields = { fullName: "성명", dongHo: "동호수", dob: "생년월일", phone: "연락처", editPassword: "수정용 비밀번호" };
-             for (const [id, name] of Object.entries(requiredFields)) {
-                 if (!document.getElementById(id).value) return alert(`필수 항목을 입력해주세요: ${name}`);
-             }
-             if (!contractImageInput.files[0]) return alert("필수 항목을 첨부해주세요: 계약서 사진");
-             if (namePad.isEmpty() || signaturePad.isEmpty()) return alert("필수 항목을 입력해주세요: 이름(정자체)과 서명");
+            // 신규 제출 시 모든 필수 항목 체크
+            const requiredFields = { fullName: "성명", dongHo: "동호수", dob: "생년월일", phone: "연락처", editPassword: "수정용 비밀번호" };
+            for (const [id, name] of Object.entries(requiredFields)) {
+                if (!document.getElementById(id).value) return alert(`필수 항목을 입력해주세요: ${name}`);
+            }
+            if (!contractImageInput.files[0]) return alert("필수 항목을 첨부해주세요: 계약서 사진");
+            if (namePad.isEmpty() || signaturePad.isEmpty()) return alert("필수 항목을 입력해주세요: 이름(정자체)과 서명");
+        } else {
+            // 수정 모드에서는 기본 텍스트 필드만 체크 (이미지와 서명은 선택사항)
+            const requiredFields = { fullName: "성명", dongHo: "동호수", dob: "생년월일", phone: "연락처" };
+            for (const [id, name] of Object.entries(requiredFields)) {
+                if (!document.getElementById(id).value) return alert(`필수 항목을 입력해주세요: ${name}`);
+            }
+
+            // 수정 모드에서는 이미지 파일들이 없어도 기존 데이터 재사용하므로 검사하지 않음
+            // 서명도 기존 서명을 재사용할 수 있으므로 검사하지 않음
+            console.log('수정 모드: 이미지 및 서명 유효성 검사 건너뜀 (기존 데이터 재사용)');
         }
 
         loadingModal.classList.remove('hidden');
