@@ -164,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentInputFile = null;
     let currentPreviewElement = null;
 
+
     const showCropModal = (file, inputElement, previewElement) => {
         // 브라우저 지원 여부 체크
         if (typeof Cropper === 'undefined') {
@@ -214,6 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
             cropImage.src = event.target.result;
             cropModal.classList.remove('hidden');
 
+            // 배경 스크롤 차단
+            document.body.style.overflow = 'hidden';
+
             // 기존 Cropper 인스턴스 제거
             if (currentCropper) {
                 currentCropper.destroy();
@@ -222,29 +226,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 이미지 로드 완료 후 Cropper 초기화
             cropImage.onload = () => {
-                // 동적 모달 크기 조정을 위한 이미지 크기 계산
+                // 이미지 크기 기반 컨테이너 정확한 크기 조정
                 const imageWidth = cropImage.naturalWidth;
                 const imageHeight = cropImage.naturalHeight;
-                const imageAspectRatio = imageWidth / imageHeight;
 
-                // 모달 컨테이너 크기 동적 조정
+                // 컨테이너 크기를 이미지에 정확히 맞춤 (투명 배경 제거)
                 const cropContainer = cropImage.parentElement;
-                const maxModalWidth = window.innerWidth * 0.9;
-                const maxModalHeight = window.innerHeight * 0.7;
+                const maxModalWidth = window.innerWidth * 0.85;
+                const maxModalHeight = window.innerHeight * 0.6;
 
-                let containerWidth, containerHeight;
-                if (imageAspectRatio > 1) {
-                    // 가로가 긴 이미지
-                    containerWidth = Math.min(maxModalWidth, 600);
-                    containerHeight = containerWidth / imageAspectRatio;
+                let displayWidth, displayHeight;
+
+                // 화면 크기에 맞춰 이미지 크기 계산하되, 비율은 정확히 유지
+                if (imageWidth <= maxModalWidth && imageHeight <= maxModalHeight) {
+                    // 이미지가 화면보다 작으면 원본 크기 사용
+                    displayWidth = imageWidth;
+                    displayHeight = imageHeight;
                 } else {
-                    // 세로가 긴 이미지
-                    containerHeight = Math.min(maxModalHeight, 500);
-                    containerWidth = containerHeight * imageAspectRatio;
+                    // 이미지가 크면 비율 유지하며 축소
+                    const scaleX = maxModalWidth / imageWidth;
+                    const scaleY = maxModalHeight / imageHeight;
+                    const scale = Math.min(scaleX, scaleY);
+
+                    displayWidth = Math.floor(imageWidth * scale);
+                    displayHeight = Math.floor(imageHeight * scale);
                 }
 
-                cropContainer.style.width = containerWidth + 'px';
-                cropContainer.style.height = containerHeight + 'px';
+                // 컨테이너를 이미지 표시 크기에 정확히 맞춤
+                cropContainer.style.width = displayWidth + 'px';
+                cropContainer.style.height = displayHeight + 'px';
+                cropContainer.style.maxWidth = 'none';
+                cropContainer.style.maxHeight = 'none';
 
                 currentCropper = new Cropper(cropImage, {
                     aspectRatio: NaN, // 자유 비율
@@ -271,7 +283,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Safari 호환성 개선
                     checkCrossOrigin: false,
                     // 터치 디바이스에서 더 나은 UX
-                    toggleDragModeOnDblclick: false
+                    toggleDragModeOnDblclick: false,
+                    // 크롭 박스가 전체 이미지를 덮도록 ready 이벤트에서 강제 설정
+                    ready: function() {
+                        // 크롭 박스를 전체 이미지 크기로 설정
+                        this.cropper.setData({
+                            x: 0,
+                            y: 0,
+                            width: imageWidth,
+                            height: imageHeight,
+                            rotate: 0,
+                            scaleX: 1,
+                            scaleY: 1
+                        });
+                        console.log('크롭 박스를 전체 이미지로 설정 완료');
+                    }
                 });
                 console.log('Cropper.js 초기화 완료');
             };
@@ -411,12 +437,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cropModal) {
             cropModal.classList.add('hidden');
         }
+
+        // 배경 스크롤 복원
+        document.body.style.overflow = '';
+
         if (currentCropper) {
             currentCropper.destroy();
             currentCropper = null;
         }
         currentInputFile = null;
         currentPreviewElement = null;
+
+        console.log('크롭 모달 닫기 및 배경 스크롤 복원 완료');
     };
 
     const updateInputFile = (inputElement, newFile) => {
