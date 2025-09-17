@@ -71,6 +71,18 @@ The form collects:
 - **CSS:** BEM-like naming, mobile-first responsive design
 - **JavaScript:** ES6 features, Promise-based async operations, comprehensive error handling
 
+### Brand Colors & Design Guidelines
+When implementing design improvements, use the following brand color palette:
+- **Primary Brand Color:** `#132D25` (Dark green - main branding color)
+- **Secondary Brand Color:** `#6a140c` (Dark red - accent and highlight color)
+- **Background Color:** `#FFFFFF` (White - clean background for content areas)
+
+**Color Usage Guidelines:**
+- Use `#132D25` for primary buttons, headers, and main brand elements
+- Use `#6a140c` for highlights, error states, or secondary call-to-action elements
+- Maintain sufficient contrast ratios for accessibility compliance
+- Apply colors consistently across all UI components and interactions
+
 ### Security Considerations
 - API key validation prevents unauthorized form submissions
 - Client-side validation with server-side validation expected in GAS backend
