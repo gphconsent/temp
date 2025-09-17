@@ -86,7 +86,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 헬퍼 함수
     // ===================================================================
 
-    const fileToBase64 = (file) => new Promise((resolve, reject) => {
+    const fileToBase64 = (file, inputElement = null) => new Promise((resolve, reject) => {
+        // 크롭된 파일이 있는 경우 우선 사용 (브라우저 호환성)
+        if (inputElement && inputElement._croppedFile) {
+            file = inputElement._croppedFile;
+            console.log('크롭된 파일 사용:', file.name);
+        }
+
         if (!file) return resolve(null);
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -123,14 +129,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const file = e.target.files[0];
             if (file) {
                 console.log(`새 파일 선택됨: ${input.id}`, file.name);
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    preview.src = event.target.result;
-                    preview.classList.remove('hidden');
-                    preview.style.display = 'block'; // 숨겨진 상태에서 보이도록
-                    console.log(`새 이미지 미리보기 설정 완료: ${input.id}`);
-                };
-                reader.readAsDataURL(file);
+
+                // 계약서 이미지나 명의변경 이미지인 경우 크롭 모달 자동 표시
+                if (input.id === 'contractImage' || input.id === 'nameChangeImage') {
+                    console.log(`크롭 모달 표시 대상: ${input.id}`);
+                    showCropModal(file, input, preview);
+                } else {
+                    // 일반 미리보기 표시
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        preview.src = event.target.result;
+                        preview.classList.remove('hidden');
+                        preview.style.display = 'block'; // 숨겨진 상태에서 보이도록
+                        console.log(`새 이미지 미리보기 설정 완료: ${input.id}`);
+                    };
+                    reader.readAsDataURL(file);
+                }
             } else {
                 // 파일이 선택 취소된 경우, 기존 이미지를 다시 표시하거나 숨김
                 console.log(`파일 선택 취소됨: ${input.id}`);
@@ -140,6 +154,260 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+    };
+
+    // ===================================================================
+    // 이미지 크롭 기능
+    // ===================================================================
+
+    let currentCropper = null;
+    let currentInputFile = null;
+    let currentPreviewElement = null;
+
+    const showCropModal = (file, inputElement, previewElement) => {
+        // 브라우저 지원 여부 체크
+        if (typeof Cropper === 'undefined') {
+            console.error('Cropper.js library not loaded!');
+            alert('이미지 편집 기능을 불러오는데 실패했습니다. 편집 없이 진행합니다.');
+            showImagePreview(file, previewElement);
+            return;
+        }
+
+        // File API 지원 체크 (IE9 이하)
+        if (typeof FileReader === 'undefined') {
+            console.error('FileReader API not supported');
+            alert('이 브라우저는 파일 읽기를 지원하지 않습니다. 최신 브라우저를 사용해주세요.');
+            return;
+        }
+
+        // Canvas API 지원 체크
+        const testCanvas = document.createElement('canvas');
+        if (!testCanvas.getContext || !testCanvas.getContext('2d')) {
+            console.error('Canvas API not supported');
+            alert('이 브라우저는 이미지 편집을 지원하지 않습니다. 편집 없이 진행합니다.');
+            showImagePreview(file, previewElement);
+            return;
+        }
+
+        // 모달 요소들 가져오기
+        const cropModal = document.getElementById('crop-modal');
+        const cropImage = document.getElementById('crop-image');
+        const rotateLeftBtn = document.getElementById('rotate-left-btn');
+        const rotateRightBtn = document.getElementById('rotate-right-btn');
+        const cropCompleteBtn = document.getElementById('crop-complete-btn');
+        const cropSkipBtn = document.getElementById('crop-skip-btn');
+        const closeCropModalBtn = document.getElementById('close-crop-modal-btn');
+
+        if (!cropModal || !cropImage) {
+            console.error('크롭 모달 요소를 찾을 수 없습니다.');
+            showImagePreview(file, previewElement);
+            return;
+        }
+
+        // 현재 상태 저장
+        currentInputFile = inputElement;
+        currentPreviewElement = previewElement;
+
+        // 파일을 이미지로 로드
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            cropImage.src = event.target.result;
+            cropModal.classList.remove('hidden');
+
+            // 기존 Cropper 인스턴스 제거
+            if (currentCropper) {
+                currentCropper.destroy();
+                currentCropper = null;
+            }
+
+            // 이미지 로드 완료 후 Cropper 초기화
+            cropImage.onload = () => {
+                currentCropper = new Cropper(cropImage, {
+                    aspectRatio: NaN, // 자유 비율
+                    viewMode: 1,
+                    movable: true,
+                    scalable: true,
+                    rotatable: true,
+                    zoomable: true,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    responsive: true,
+                    restore: false,
+                    checkOrientation: false,
+                    modal: true,
+                    guides: true,
+                    center: true,
+                    background: true,
+                    autoCropArea: 0.8,
+                    minContainerWidth: 200,
+                    minContainerHeight: 200,
+                    dragMode: 'move',
+                    // 모바일 터치 최적화
+                    wheelZoomRatio: 0.1,
+                    // Safari 호환성 개선
+                    checkCrossOrigin: false,
+                    // 터치 디바이스에서 더 나은 UX
+                    toggleDragModeOnDblclick: false
+                });
+                console.log('Cropper.js 초기화 완료');
+            };
+        };
+        reader.readAsDataURL(file);
+
+        // 이벤트 리스너 설정 (중복 등록 방지)
+        const newRotateLeftBtn = rotateLeftBtn.cloneNode(true);
+        const newRotateRightBtn = rotateRightBtn.cloneNode(true);
+        const newCropCompleteBtn = cropCompleteBtn.cloneNode(true);
+        const newCropSkipBtn = cropSkipBtn.cloneNode(true);
+        const newCloseCropModalBtn = closeCropModalBtn.cloneNode(true);
+
+        rotateLeftBtn.parentNode.replaceChild(newRotateLeftBtn, rotateLeftBtn);
+        rotateRightBtn.parentNode.replaceChild(newRotateRightBtn, rotateRightBtn);
+        cropCompleteBtn.parentNode.replaceChild(newCropCompleteBtn, cropCompleteBtn);
+        cropSkipBtn.parentNode.replaceChild(newCropSkipBtn, cropSkipBtn);
+        closeCropModalBtn.parentNode.replaceChild(newCloseCropModalBtn, closeCropModalBtn);
+
+        // 좌회전 (반시계방향 90도)
+        newRotateLeftBtn.addEventListener('click', () => {
+            if (currentCropper) {
+                currentCropper.rotate(-90);
+                console.log('이미지 좌회전 (-90도)');
+            }
+        });
+
+        // 우회전 (시계방향 90도)
+        newRotateRightBtn.addEventListener('click', () => {
+            if (currentCropper) {
+                currentCropper.rotate(90);
+                console.log('이미지 우회전 (+90도)');
+            }
+        });
+
+        // 편집 완료
+        newCropCompleteBtn.addEventListener('click', () => {
+            if (currentCropper) {
+                try {
+                    const canvas = currentCropper.getCroppedCanvas({
+                        maxWidth: 2048,
+                        maxHeight: 2048,
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high'
+                    });
+
+                    if (!canvas) {
+                        throw new Error('Canvas 생성 실패');
+                    }
+
+                    // Blob 생성 지원 체크
+                    if (typeof canvas.toBlob === 'function') {
+                        canvas.toBlob((blob) => {
+                            if (!blob) {
+                                console.error('Blob 생성 실패');
+                                alert('이미지 처리 중 오류가 발생했습니다.');
+                                return;
+                            }
+
+                            // 새로운 파일 객체 생성
+                            const croppedFile = new File([blob], file.name, {
+                                type: file.type || 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+
+                            // 입력 요소의 파일 업데이트
+                            updateInputFile(currentInputFile, croppedFile);
+
+                            // 미리보기 업데이트
+                            showImagePreview(croppedFile, currentPreviewElement);
+
+                            // 모달 닫기
+                            closeCropModal();
+                            console.log('이미지 편집 완료 및 파일 교체');
+                        }, file.type || 'image/jpeg', 0.9);
+                    } else {
+                        // toBlob이 지원되지 않는 경우 toDataURL 사용 (IE 호환성)
+                        const dataUrl = canvas.toDataURL(file.type || 'image/jpeg', 0.9);
+                        const byteString = atob(dataUrl.split(',')[1]);
+                        const arrayBuffer = new ArrayBuffer(byteString.length);
+                        const ia = new Uint8Array(arrayBuffer);
+                        for (let i = 0; i < byteString.length; i++) {
+                            ia[i] = byteString.charCodeAt(i);
+                        }
+                        const blob = new Blob([arrayBuffer], { type: file.type || 'image/jpeg' });
+
+                        const croppedFile = new File([blob], file.name, {
+                            type: file.type || 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+
+                        updateInputFile(currentInputFile, croppedFile);
+                        showImagePreview(croppedFile, currentPreviewElement);
+                        closeCropModal();
+                        console.log('이미지 편집 완료 (fallback 방식)');
+                    }
+                } catch (error) {
+                    console.error('이미지 편집 중 오류:', error);
+                    alert('이미지 편집 중 오류가 발생했습니다: ' + error.message);
+                }
+            }
+        });
+
+        // 편집 없이 사용
+        newCropSkipBtn.addEventListener('click', () => {
+            showImagePreview(file, currentPreviewElement);
+            closeCropModal();
+            console.log('이미지 편집 건너뛰기');
+        });
+
+        // 모달 닫기
+        newCloseCropModalBtn.addEventListener('click', () => {
+            // 파일 선택을 취소하고 모달 닫기
+            currentInputFile.value = '';
+            closeCropModal();
+            console.log('크롭 모달 닫기 및 파일 선택 취소');
+        });
+    };
+
+    const closeCropModal = () => {
+        const cropModal = document.getElementById('crop-modal');
+        if (cropModal) {
+            cropModal.classList.add('hidden');
+        }
+        if (currentCropper) {
+            currentCropper.destroy();
+            currentCropper = null;
+        }
+        currentInputFile = null;
+        currentPreviewElement = null;
+    };
+
+    const updateInputFile = (inputElement, newFile) => {
+        // FileList는 읽기 전용이므로 DataTransfer를 사용해 우회
+        // Safari 및 구형 브라우저 호환성을 위한 체크
+        try {
+            if (typeof DataTransfer !== 'undefined') {
+                const dt = new DataTransfer();
+                dt.items.add(newFile);
+                inputElement.files = dt.files;
+            } else {
+                // DataTransfer를 지원하지 않는 경우 파일을 별도로 저장
+                inputElement._croppedFile = newFile;
+            }
+            console.log(`입력 파일 업데이트: ${inputElement.id}`, newFile.name);
+        } catch (error) {
+            console.warn('DataTransfer 사용 실패, 대체 방법 사용:', error);
+            inputElement._croppedFile = newFile;
+        }
+    };
+
+    const showImagePreview = (file, previewElement) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            previewElement.src = event.target.result;
+            previewElement.classList.remove('hidden');
+            previewElement.style.display = 'block';
+            console.log('이미지 미리보기 표시');
+        };
+        reader.readAsDataURL(file);
     };
 
     // ===================================================================
@@ -365,6 +633,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- 전체 동의 체크박스 기능 ---
+    const agreeAllPrivacyCheckbox = document.getElementById('agreeAllPrivacy');
+    const privacyCheckboxes = ['agreePrivacy', 'agreeProvider'];
+
+    if (agreeAllPrivacyCheckbox) {
+        // 전체 동의 체크박스 클릭 시
+        agreeAllPrivacyCheckbox.addEventListener('change', () => {
+            const isChecked = agreeAllPrivacyCheckbox.checked;
+            privacyCheckboxes.forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox) {
+                    checkbox.checked = isChecked;
+                }
+            });
+            console.log(`개인정보 전체 동의: ${isChecked ? '체크됨' : '해제됨'}`);
+        });
+
+        // 개별 체크박스 상태 변경 시 전체 동의 상태 업데이트
+        privacyCheckboxes.forEach(id => {
+            const checkbox = document.getElementById(id);
+            if (checkbox) {
+                checkbox.addEventListener('change', () => {
+                    const allChecked = privacyCheckboxes.every(checkboxId => {
+                        const cb = document.getElementById(checkboxId);
+                        return cb && cb.checked;
+                    });
+                    agreeAllPrivacyCheckbox.checked = allChecked;
+                });
+            }
+        });
+    }
+
     // --- 서명패드 및 이미지 미리보기 ---
     clearNameBtn.addEventListener('click', () => {
         namePad.clear();
@@ -447,8 +747,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 수정 모드에서는 originalEmail을 사용하되, 백엔드가 email 필드를 기대하므로 email로도 설정
                 email: currentEditMode ? originalEmail : formData.email,
                 originalEmail: currentEditMode ? originalEmail : formData.email,
-                contractImageFile: await fileToBase64(contractImageInput.files[0]),
-                nameChangeImageFile: await fileToBase64(nameChangeImageInput.files[0]),
+                contractImageFile: await fileToBase64(contractImageInput.files[0], contractImageInput),
+                nameChangeImageFile: await fileToBase64(nameChangeImageInput.files[0], nameChangeImageInput),
                 combinedSignature: combinedSignatureObject,
             };
 

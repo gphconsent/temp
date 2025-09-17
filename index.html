@@ -17,23 +17,39 @@
 
     <!-- 메인 폼 컨테이너 -->
     <div class="container">
-        <div class="form-header">
-            <h2>위임 동의서 작성</h2>
-            <p>본인은 고척푸르지오힐스테이트 아파트 입주예정자(분양자 및 배우자, 직계 존비속)로서, '고척푸르지오힐스테이트 입주예정자협의회'의 회칙을 준수하고, 회원으로서의 역할을 충실히 수행하며, 수임인인 '고척푸르지오힐스테이트 입주예정자협의회'를 입주예정자의 권익을 대표하는 공식단체임을 인정하며, 협의회 본연의 역할 수행과 원활한 운영을 위해 아래 사항에 대한 권한을 위임하는 것에 동의합니다.</p>
+        <!-- 진행률 표시 (점 방식) -->
+        <div class="progress-indicator">
+            <div class="progress-dot completed"></div>
+            <div class="progress-dot active"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
         </div>
-
-        <div class="form-content">
-            <!-- 진행률 표시바 -->
-            <div class="progress-bar">
-                <div class="progress-fill"></div>
-            </div>
         <div class="text-right mb-20">
             <button type="button" id="open-edit-modal-btn" class="btn btn-link">이미 제출하셨나요? 내용 수정하기</button>
-        </div>                        
+        </div>
 
         <form id="consent-form">
-            <section class="form-section">
-                <h3 class="section-title">기본 정보</h3>
+            <!-- 카드 1: 중요 안내 -->
+            <div class="floating-card">
+                <div class="card-header">
+                    <h3>📋 위임 동의서 안내</h3>
+                    <p>동의서 작성 전 반드시 확인해주세요</p>
+                </div>
+                <div class="card-content">
+                    <div style="background: rgba(19, 45, 37, 0.05); border: 2px solid #132D25; border-radius: 12px; padding: 25px; font-size: 1rem; line-height: 1.8; color: #2c3e50;">
+                        본인은 고척푸르지오힐스테이트 아파트 입주예정자(분양자 및 배우자, 직계 존비속)로서, '고척푸르지오힐스테이트 입주예정자협의회'의 회칙을 준수하고, 회원으로서의 역할을 충실히 수행하며, 수임인인 '고척푸르지오힐스테이트 입주예정자협의회'를 입주예정자의 권익을 대표하는 공식단체임을 인정하며, 협의회 본연의 역할 수행과 원활한 운영을 위해 아래 사항에 대한 권한을 위임하는 것에 동의합니다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 2: 기본 정보 -->
+            <div class="floating-card">
+                <div class="card-header">
+                    <h3>기본 정보</h3>
+                    <p>동의서 작성을 위한 기본 정보를 입력해주세요</p>
+                </div>
+                <div class="card-content">
+                    <section class="form-section">
                 <div class="form-group hidden" id="original-email-section">
                     <label>이메일 주소 (수정 불가)</label>
                     <p id="original-email-display" style="font-weight: bold; padding: 10px; background-color: #f8f9fa; border-radius: 6px;"></p>
@@ -91,17 +107,25 @@
                     <input type="password" id="editPassword" name="editPassword" placeholder="데이터 수정 시 필요" maxlength="4" inputmode="numeric" required>
                     <div class="field-error hidden" id="editPassword-error"></div>
                 </div>
-            </section>
+                    </section>
+                </div>
+            </div>
 
-            <section class="form-section">
-                <h3 class="section-title">5. 계약서 사진 첨부</h3>
+            <!-- 카드 3: 계약서 첨부 -->
+            <div class="floating-card">
+                <div class="card-header">
+                    <h3>계약서 사진 첨부</h3>
+                    <p>공급계약서 사진을 업로드해주세요</p>
+                </div>
+                <div class="card-content">
+                    <section class="form-section">
 
                 <div class="description">
                     <p>
                         <strong>[이렇게 첨부해 주세요]</strong><br>
-                        - 공급계약서를 동호수와 계약자 본인 이름이 함께 보이도록 사진 첨부 바랍니다.<br>
+                        - <b>공급계약서를 동호수와 계약자 본인 이름이 함께 보이도록</b> 사진 첨부 바랍니다.<br>
                         - 명의변경의 경우, 변경내역까지 업로드 바랍니다.<br>
-                        - 주민등록번호 뒷자리는 반드시 가려주세요.<br>
+                        - <b style="color: red;">주민등록번호 뒷자리는 반드시 가려주세요.</b><br>
                         - 파일 형식은 이미지 파일만 가능합니다.<br>
                     </p>
                     <p>
@@ -122,9 +146,18 @@
                     <div class="field-error hidden" id="contractImage-error"></div>
                 </div>
             </section>
+                </div>
+            </div>
 
-            <section class="form-section">
-                <h3 class="section-title">6. 위임 내용</h3>
+            <!-- 카드 4: 위임 내용 동의 -->
+            <div class="floating-card">
+                <div class="card-header">
+                    <h3>위임 내용 동의</h3>
+                    <p>위임사항을 확인하고 동의해주세요</p>
+                </div>
+                <div class="card-content">
+                    <section class="form-section">
+                        <h3 class="section-title">6. 위임 내용</h3>
                 <div class="terms-box">
                     <p><strong>고척푸르지오힐스테이트에 관한 사항으로, 위임인은 수임인에게 아래의 위임 내용에 대한 모든 권한을 부여하는 데 동의하며, 추후 의결된 안건에 대해서는 일체의 민·형사상 책임을 묻지 않을 것을 서약합니다.</strong></p>
                     <h3>1. &nbsp; 수임인의 소임</h3>
@@ -159,12 +192,27 @@
                     <label><input type="radio" name="agreeTermsRadio" value="disagree"> <strong>동의하지 않습니다</strong></label>
                 </div>
                 <div class="field-error hidden" id="agreeTermsRadio-error"></div>
-            </section>
+                    </section>
+                </div>
+            </div>
 
-            <section class="form-section">
-                <h3 class="section-title">7. 개인정보 수집 및 이용 동의</h3>
+            <!-- 카드 5: 개인정보 동의사항 -->
+            <div class="floating-card">
+                <div class="card-header">
+                    <h3>개인정보 동의사항</h3>
+                    <p>개인정보 수집·이용 및 제3자 제공에 동의해주세요</p>
+                    <div class="header-checkbox-group">
+                        <label class="header-checkbox-label">
+                            <input type="checkbox" id="agreeAllPrivacy" class="header-checkbox">
+                            <span class="header-checkbox-text">전체 동의</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <section class="form-section">
+                        <h3 class="section-title">7. 개인정보 수집 및 이용 동의</h3>
                 <p class="description">
-                    개인정보보호법 등 관련 법규에 의거하여 ‘고척푸르지오힐스테이트’ 입주예정자협의회에서는 위임인의 개인정보 수집 및 활용과 필요시 제3자 제공에 필요한 개인정보 수집 및 활용 / 제3자 동의서를 받고 있습니다. 개인정보 제공자가 동의한 내용 외의 다른 목적으로 활용하지 않으며, 제공된 개인정보 이용을 거부하고자 할 경우에는 개인정보 관리책임자를 통해 열람, 정정, 삭제 등을 요구할 수 있습니다. 귀하는 위 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다. 단, 동의를 거부할 경우 본 설문의 참여는 불가능하며 위임 동의서 제출을 통한 입주예정자협의회 활동 참여가 제한됩니다.
+                    개인정보보호법 등 관련 법규에 의거하여 ‘고척푸르지오힐스테이트’ 입주예정자협의회에서는 위임인의 개인정보 수집 및 활용과 필요시 제3자 제공에 필요한 개인정보 수집 및 활용 / 제3자 동의서를 받고 있습니다. 개인정보 제공자가 동의한 내용 외의 다른 목적으로 활용하지 않으며, 제공된 개인정보 이용을 거부하고자 할 경우에는 개인정보 관리책임자를 통해 열람, 정정, 삭제 등을 요구할 수 있습니다. <b>귀하는 위 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다. 단, 동의를 거부할 경우 본 설문의 참여는 불가능하며 위임 동의서 제출을 통한 입주예정자협의회 활동 참여가 제한됩니다.</b>
                 </p>
                 <div class="info-block-container">
                     <div class="info-block">
@@ -193,7 +241,7 @@
 
             <section class="form-section">
                 <h3 class="section-title">8. 개인정보 제3자 제공 동의</h3>
-                <p class="description">고척푸르지오힐스테이트 입주 예정자 협의회는 개인정보를 원칙적으로 제 3자에게 제공하지 않으며, 다만 시행사와 시공사, 정부기관 등이 법령에 근거하여 이용자의 개인정보를 강제하는 경우 개인정보를 제공할 수 있습니다.귀하는 위 개인정보 제3자 제공에 대한 동의를 거부할 권리가 있습니다. 단, 동의를 거부할 경우 본 설문의 참여는 불가능하며 위임 동의서 제출을 통한 입주예정자협의회 활동 참여가 제한됩니다.</p>
+                <p class="description">고척푸르지오힐스테이트 입주 예정자 협의회는 개인정보를 원칙적으로 제 3자에게 제공하지 않으며, 다만 시행사와 시공사, 정부기관 등이 법령에 근거하여 이용자의 개인정보를 강제하는 경우 개인정보를 제공할 수 있습니다.<b>귀하는 위 개인정보 제3자 제공에 대한 동의를 거부할 권리가 있습니다. 단, 동의를 거부할 경우 본 설문의 참여는 불가능하며 위임 동의서 제출을 통한 입주예정자협의회 활동 참여가 제한됩니다.</b></p>
                 <div class="info-block-container">
                     <div class="info-block">
                         <h4>제공받는 자</h4>
@@ -221,9 +269,18 @@
                 </div>
                 <div class="field-error hidden" id="agreeProvider-error"></div>
             </section>
+                </div>
+            </div>
 
-            <section class="form-section">
-                <h3 class="section-title">9. 홍보 및 소식 전달을 위한 개인정보 수집·이용 동의 (선택)</h3>
+            <!-- 카드 6: 홍보 동의사항 -->
+            <div class="floating-card">
+                <div class="card-header">
+                    <h3>홍보 동의사항 (선택)</h3>
+                    <p>홍보 소식 전달을 위한 동의사항입니다</p>
+                </div>
+                <div class="card-content">
+                    <section class="form-section">
+                        <h3 class="section-title">9. 홍보 및 소식 전달을 위한 개인정보 수집·이용 동의 (선택)</h3>
                 <p class="description">고척 푸르지오 힐스테이트 입주예정자 협의회는 협의회 활동 소식 등을 효과적으로 전달하기 위해 아래와 같이 개인정보를 수집·이용합니다.</p>
                  <div class="info-block-container">
                     <div class="info-block">
@@ -249,9 +306,17 @@
                     <label><input type="radio" name="agreeMarketingRadio" value="disagree"> <strong>동의하지 않습니다</strong></label>
                 </div>
             </section>
-            
-            <section class="form-section">
-                <h3 class="section-title">10. 서명</h3>
+                </div>
+            </div>
+
+            <!-- 카드 7: 서명 및 마무리 -->
+            <div class="floating-card">
+                <div class="card-header">
+                    <h3>서명 및 마무리</h3>                    
+                </div>
+                <div class="card-content">
+                    <section class="form-section">
+                        <h3 class="section-title">10. 서명</h3>
                 <img id="signature-preview" class="preview-image hidden" alt="기존 서명 미리보기">
                 <p class="description">위 모든 약관에 동의한다는 의미로, 아래 두 칸에 각각 <b>이름과 서명을 정자체로 직접 써주세요.</b>(수정 시, 새로 입력하지 않으면 기존 서명이 유지됩니다)</p>
                 
@@ -280,9 +345,11 @@
                     <img id="nameChange-preview" class="preview-image hidden" alt="명의변경 미리보기">
                 </div>
             </section>
-            
+
             <div class="submit-container">
                 <button type="submit" id="submit-btn" class="btn btn-primary btn-block">제출하기</button>
+            </div>
+                </div>
             </div>
         </form>
         </div> <!-- form-content 닫기 -->
@@ -310,6 +377,40 @@
             <p id="edit-status-msg" class="status-msg"></p>
         </div>
     </div>
+
+    <!-- 이미지 크롭 모달 -->
+    <div id="crop-modal" class="modal-overlay hidden">
+        <div class="crop-modal-content">
+            <div class="card-header">
+                <h3>📐 이미지 편집</h3>
+                <p>회전하거나 필요한 부분만 자를 수 있습니다</p>
+                <button id="close-crop-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="card-content">
+                <div class="crop-container">
+                    <img id="crop-image" alt="편집할 이미지">
+                </div>
+                <div class="crop-controls">
+                    <button id="rotate-left-btn" class="btn btn-secondary">
+                        <span class="rotate-icon">↺</span> 좌회전
+                    </button>
+                    <button id="rotate-right-btn" class="btn btn-secondary">
+                        <span class="rotate-icon">↻</span> 우회전
+                    </button>
+                    <button id="crop-complete-btn" class="btn btn-primary">
+                        ✓ 완료
+                    </button>
+                    <button id="crop-skip-btn" class="btn btn-link">
+                        편집 없이 사용
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cropper.js for image editing -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <script src="js/script.js"></script>

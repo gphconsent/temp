@@ -11,21 +11,24 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
+    font-size: 16px;
 }
 
 /* 미니멀 헤더 - 배경 이미지 섹션 */
 .minimal-header {
-    height: 25vh;
+    height: 8vh;
     background: linear-gradient(
-        rgba(19, 45, 37, 0.8),
-        rgba(19, 45, 37, 0.6)
+        rgba(19, 45, 37, 0.9),
+        rgba(19, 45, 37, 0.7)
     ), url('../img/bg.jpg');
     background-size: cover;
     background-position: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .header-content {
@@ -36,39 +39,154 @@ body {
 }
 
 .header-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    text-align: center;
 }
 
 .header-subtitle {
     font-size: 1rem;
-    opacity: 0.9;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 8px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
-/* 메인 컨테이너 - 폼 카드 */
+/* 메인 컨테이너 */
 .container {
     max-width: 800px;
-    margin: -50px auto 0;
-    background-color: #fff;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    padding: 20px 10px;
+    background: #f8f9fa;
+}
+
+/* 플로팅 카드 시스템 */
+.floating-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
     overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.floating-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #132D25, #0f251f);
+    color: white;
+    padding: 25px;
     position: relative;
-    z-index: 2;
+}
+
+.card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6a140c, #132D25);
+}
+
+.card-header h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-header p {
+    opacity: 0.9;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* 헤더 전체 동의 체크박스 */
+.header-checkbox-group {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.header-checkbox-label:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+}
+
+.header-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #6a140c;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.header-checkbox-text {
+    user-select: none;
+}
+
+.card-content {
+    padding: 40px 15px 30px 15px;
+}
+
+/* 플로팅 카드용 체크박스 그룹 */
+.card-content .checkbox-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 3px solid #132D25;
+}
+
+.card-content .checkbox-group input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    accent-color: #132D25;
+    transform: scale(1.1);
+}
+
+.card-content .checkbox-group label {
+    margin: 0;
+    font-weight: 500;
+    line-height: 1.6;
+    flex: 1;
+    font-size: 0.9rem;
+    color: #2c3e50;
 }
 
 .form-header {
     background: linear-gradient(135deg, #132D25, #0f251f);
     color: white;
-    padding: 30px;
+    padding: 35px 40px;
     text-align: center;
 }
 
 .form-header h2 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     margin-bottom: 10px;
 }
 
@@ -87,24 +205,47 @@ body {
 }
 
 .form-content {
-    padding: 40px;
+    padding: 40px 25px;
 }
 
-/* 진행률 표시바 */
-.progress-bar {
+/* 진행률 표시 (점 방식) */
+.progress-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin: 25px 0;
+}
+
+.progress-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
     background: #e9ecef;
-    height: 4px;
-    border-radius: 2px;
-    margin-bottom: 30px;
-    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
 }
 
-.progress-fill {
-    background: linear-gradient(90deg, #132D25, #6a140c);
-    height: 100%;
-    width: 30%;
-    border-radius: 2px;
-    transition: width 0.3s ease;
+.progress-dot.active {
+    background: #132D25;
+    transform: scale(1.2);
+    box-shadow: 0 0 0 4px rgba(19, 45, 37, 0.2);
+}
+
+.progress-dot.completed {
+    background: #6a140c;
+    transform: scale(1.1);
+}
+
+.progress-dot.completed::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
 }
 
 /* 기존 header 스타일은 제거하고 대체 */
@@ -118,7 +259,7 @@ header {
 
 .section-title {
     color: #132D25;
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 600;
     margin-bottom: 20px;
     padding-bottom: 10px;
@@ -149,11 +290,13 @@ input[type="password"],
 input[type="date"],
 select {
     width: 100%;
-    padding: 12px;
+    padding: 22px 20px;
     border: 2px solid #e9ecef;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 1rem;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
+    background: #fafbfc;
+    line-height: 1.5;
 }
 
 input[type="text"]:focus,
@@ -164,6 +307,9 @@ input[type="date"]:focus,
 select:focus {
     outline: none;
     border-color: #132D25;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(19, 45, 37, 0.1);
+    transform: translateY(-1px);
 }
 
 /* readonly 필드 스타일 - 시각적으로 구분되도록 */
@@ -192,12 +338,26 @@ input[type="file"] {
 }
 
 .description {
-    font-size: 0.95em;
     color: #666;
     margin-bottom: 15px;
     background-color: #f0f4f8;
     padding: 15px;
     border-radius: 4px;
+}
+
+.description p {
+    font-size: 0.9em;
+    line-height: 1.6;
+}
+
+.description b,
+.description strong {
+    font-weight: bold;
+}
+
+.description b[style*="color: red"] {
+    color: red !important;
+    font-weight: bold;
 }
 
 .terms-box {
@@ -229,7 +389,7 @@ input[type="file"] {
 }
 
 .info-block {
-    padding: 15px;
+    padding: 10px 15px;
 }
 
 .info-block:not(:last-child) {
@@ -239,7 +399,7 @@ input[type="file"] {
 .info-block h4 {
     font-weight: 600;
     color: #132D25;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
 }
 
 .info-block p,
@@ -254,14 +414,18 @@ input[type="file"] {
 
 .signature-pad-container {
     position: relative;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    background-color: #fff;
+    margin-bottom: 20px;
+    overflow: hidden;
+    min-height: 200px;
 }
 
 canvas {
     width: 100%;
     height: 200px;
-    border-radius: 6px;
+    border-radius: 10px;
     display: block;
     touch-action: none;
 }
@@ -330,7 +494,7 @@ canvas {
 /* Small Button */
 .btn-sm {
     padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     border-radius: 4px;
     letter-spacing: 0;
 }
@@ -415,27 +579,205 @@ table tr:last-child td {
 }
 
 /* Responsive table and layout */
+/* 모바일 최적화 강화 */
 @media (max-width: 768px) {
     body {
-        padding: 10px;
+        padding: 0;
+        font-size: 16px;
     }
-    
+
     .container {
-        padding: 20px 15px;
+        padding: 8px;
+        max-width: 100%;
     }
-    
-    header h1 {
-        font-size: 1.5em;
+
+    .floating-card {
+        margin-bottom: 15px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     }
-    
+
+    .card-header {
+        padding: 20px 18px 16px 18px;
+    }
+
+    .header-checkbox-group {
+        margin-top: 12px;
+        padding-top: 12px;
+    }
+
+    .header-checkbox-label {
+        font-size: 0.9rem;
+        gap: 8px;
+    }
+
+    .header-checkbox {
+        width: 16px;
+        height: 16px;
+    }
+
+    .card-content {
+        padding: 25px 18px 20px 18px;
+    }
+
+    /* 모바일에서 체크박스 그룹 패딩 줄이기 */
+    .card-content .checkbox-group {
+        padding: 8px 12px;
+        margin-bottom: 15px;
+        gap: 10px;
+    }
+
+    .card-content .checkbox-group input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        transform: scale(1);
+    }
+
+    .header-title {
+        font-size: 1rem;
+    }
+
+    .btn-block {
+        padding: 18px;
+        font-size: 1rem;
+        font-weight: 600;
+        min-height: 56px;
+        border-radius: 12px;
+    }
+
+    .checkbox-group label,
+    .radio-group label {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        padding: 10px 0;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        flex-shrink: 0;
+    }
+
+    /* 서명 패드 모바일 */
+    .signature-pad-container {
+        min-height: 180px;
+        touch-action: none;
+        border-radius: 12px;
+        border: 2px solid #ddd;
+    }
+
+    .signature-pad-container canvas {
+        touch-action: none;
+        height: 180px;
+    }
+
+    /* 터치 친화적 버튼 */
+    .btn-secondary {
+        min-height: 44px;
+        padding: 12px 16px;
+        border-radius: 8px;
+    }
+
+    /* 파일 업로드 최적화 */
+    input[type="file"] {
+        padding: 18px;
+        font-size: 1rem;
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        background: #f8f9fa;
+        cursor: pointer;
+        min-height: 56px;
+    }
+
+    /* 입력 필드 개선 */
+    input[type="text"], input[type="email"], input[type="tel"],
+    input[type="password"], input[type="date"], select {
+        padding: 20px 18px;
+        font-size: 1rem;
+        border-radius: 12px;
+        min-height: 56px;
+    }
+
+    .form-group label {
+        font-size: 1rem;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    /* 셍션 스타일 */
+    .section-title {
+        font-size: 1rem;
+        margin-bottom: 16px;
+        line-height: 1.4;
+    }
+
+    .description {
+        margin-bottom: 20px;
+    }
+
+    .description p {
+        font-size: 0.9rem;
+        line-height: 1.7;
+    }
+
+    /* 약관 박스 */
+    .terms-box {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        padding: 18px;
+        border-radius: 12px;
+    }
+
+    /* 정보 블록 */
+    .info-block {
+        margin-bottom: 15px;
+        padding: 12px 18px;
+        border-radius: 12px;
+    }
+
+    .info-block h4 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    /* 예시 이미지 */
+    .example-image-container {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .example-image, .preview-image {
+        border-radius: 12px;
+        max-width: 100%;
+        margin-top: 15px;
+    }
+
+    /* 진행 표시기 */
+    .progress-indicator {
+        margin: 20px 0;
+        gap: 12px;
+    }
+
+    .progress-dot {
+        width: 10px;
+        height: 10px;
+    }
+
+    /* 이전 스타일 유지 */
     .form-section {
-        padding: 20px;
+        padding: 0;
     }
-    
+
     table {
         font-size: 0.9em;
     }
-    
+
     table th,
     table td {
         padding: 8px 10px;
@@ -571,7 +913,7 @@ input[type="file"]:hover {
 
 /* 필드별 오류 메시지 */
 .field-error {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     color: #82180F;
     margin-top: 5px;
     padding: 2px 0;
@@ -658,7 +1000,7 @@ input[type="file"].success {
     color: #132D25; /* 브랜딩 컬러 적용 */
     text-decoration: underline;
     cursor: pointer;
-    font-size: 0.95em;
+    font-size: 0.9em;
     transition: all 0.2s ease;
 }
 
@@ -684,7 +1026,7 @@ input[type="file"].success {
     right: 15px;
     background: none;
     border: none;
-    font-size: 1.8em;
+    font-size: 1.6em;
     cursor: pointer;
     line-height: 1;
     color: #666;
@@ -709,19 +1051,21 @@ input[type="file"].success {
 
 @media (max-width: 768px) {
     .minimal-header {
-        height: 20vh;
+        height: 22vh;
     }
 
     .header-title {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
     }
 
     .container {
-        margin: -30px 20px 0;
+        margin: -30px 12px 0;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
     }
 
     .form-content {
-        padding: 30px 20px;
+        padding: 25px 12px;
     }
 
     .form-row {
@@ -729,47 +1073,83 @@ input[type="file"].success {
     }
 
     .form-header {
-        padding: 25px 20px;
+        padding: 30px 25px;
     }
 
     .form-header h2 {
-        font-size: 1.3rem;
+        font-size: 1rem;
+    }
+
+    .form-header p {
+        font-size: 0.85rem;
+        padding: 15px;
     }
 }
 
 @media (max-width: 480px) {
     .minimal-header {
-        height: 18vh;
+        height: 20vh;
     }
 
     .header-title {
-        font-size: 1.3rem;
+        font-size: 1rem;
         line-height: 1.3;
     }
 
     .header-subtitle {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        margin-top: 6px;
     }
 
     .container {
-        margin: -20px 15px 0;
+        margin: -25px 8px 0;
+        border-radius: 8px;
+        box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
     }
 
     .form-content {
-        padding: 25px 15px;
+        padding: 20px 10px;
+    }
+
+    .form-header {
+        padding: 25px 20px;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .form-header p {
+        font-size: 0.8rem;
+        padding: 12px;
+        line-height: 1.5;
+        border-radius: 6px;
     }
 
     .section-title {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
     }
 
     .input-with-button {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
     }
 
     .input-with-button button {
         width: 100%;
+    }
+
+    /* 모바일에서 입력 필드 패딩 적절히 조정 */
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"],
+    input[type="date"],
+    select {
+        padding: 12px;
+        border-radius: 6px;
     }
 }
 
@@ -778,4 +1158,161 @@ body::after {
     content: '';
     display: block;
     height: 100px;
+}
+
+/* ============================================= */
+/* 이미지 크롭 모달 스타일 */
+/* ============================================= */
+
+.crop-modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 95%;
+    max-width: 900px;
+    max-height: 95vh;
+    position: relative;
+    box-shadow: 0 8px 25px rgba(19, 45, 37, 0.15);
+    border: 1px solid rgba(19, 45, 37, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.crop-modal-content .card-header {
+    background: linear-gradient(135deg, #132D25, #0f251f);
+    color: white;
+    padding: 20px 25px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.crop-modal-content .card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6a140c, #132D25);
+}
+
+.crop-modal-content .card-header h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.crop-modal-content .card-header p {
+    opacity: 0.9;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.crop-modal-content .card-content {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.crop-container {
+    flex: 1;
+    min-height: 300px;
+    max-height: 60vh;
+    margin-bottom: 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.crop-container img {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+}
+
+.crop-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.crop-controls .btn {
+    min-width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.rotate-icon {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+    .crop-modal-content {
+        width: 98%;
+        max-height: 98vh;
+        border-radius: 12px;
+    }
+
+    .crop-modal-content .card-header {
+        padding: 15px 18px;
+    }
+
+    .crop-modal-content .card-header h3 {
+        font-size: 1rem;
+    }
+
+    .crop-modal-content .card-content {
+        padding: 15px;
+    }
+
+    .crop-container {
+        min-height: 250px;
+        max-height: 50vh;
+    }
+
+    .crop-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .crop-controls .btn {
+        width: 100%;
+        min-height: 48px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .crop-modal-content {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        max-height: 100vh;
+    }
+
+    .crop-container {
+        min-height: 200px;
+        max-height: 45vh;
+    }
+
+    .crop-controls {
+        padding: 0 10px;
+    }
 }
